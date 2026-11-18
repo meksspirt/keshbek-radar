@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
+import { Capacitor } from '@capacitor/core';
 import {
   ArrowRight,
   Building2,
@@ -358,6 +359,252 @@ export function AuthScreen({
         : bestSimRec.bestFundType === 'CREDIT'
           ? 'Кредитні кошти'
           : 'Власні або кредитні';
+
+  const isNativeApp = Capacitor.isNativePlatform();
+
+  const authCard = (
+    <div className="bezel-shell">
+      <div className="bezel-core p-5 sm:p-6 space-y-5">
+        {currentUser && onContinueToApp ? (
+          <div className="space-y-5">
+            <div className="space-y-1">
+              <h3 className="text-xl sm:text-2xl font-semibold text-zinc-50 tracking-tight">
+                Ви вже авторизовані
+              </h3>
+              <p className="text-sm text-zinc-400">
+                Активна сесія учасника готова до роботи з Радаром вигоди
+              </p>
+            </div>
+
+            <div className="rounded-xl bg-zinc-950 border border-white/[0.07] p-4 flex items-center gap-3">
+              <div className="h-11 w-11 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center shrink-0">
+                <User className="h-5 w-5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
+              </div>
+              <div className="min-w-0">
+                <div className="text-base font-semibold text-zinc-100 truncate">
+                  {currentUser.displayName}
+                </div>
+                <div className="text-xs sm:text-sm font-mono text-zinc-400 truncate">
+                  {currentUser.email}
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={onContinueToApp}
+              className="group w-full min-h-[50px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-base flex items-center justify-between transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer"
+            >
+              <span>Перейти до робочого кабінету</span>
+              <span className="h-8 w-8 rounded-full bg-zinc-950/10 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
+                <ArrowRight className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+              </span>
+            </button>
+          </div>
+        ) : (
+          <>
+            <div className="space-y-1">
+              <h3 className="text-xl font-semibold text-zinc-50 tracking-tight">
+                {mode === 'login' ? 'Вхід у персональний кабінет' : 'Реєстрація учасника'}
+              </h3>
+              <p className="text-xs text-zinc-400">
+                Ваші картки та щомісячні відсотки доступні лише вам
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-1 rounded-xl bg-zinc-950 p-1 border border-zinc-800/90">
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('login');
+                  setError(null);
+                }}
+                className={`min-h-[42px] rounded-lg text-xs font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
+                  mode === 'login'
+                    ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Вхід у кабінет
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setMode('register');
+                  setError(null);
+                }}
+                className={`min-h-[42px] rounded-lg text-xs font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
+                  mode === 'register'
+                    ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                Реєстрація
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {mode === 'register' && (
+                <div className="space-y-1.5">
+                  <label
+                    className="block text-xs font-medium text-zinc-300"
+                    htmlFor="auth-name"
+                  >
+                    Ім’я учасника
+                  </label>
+                  <div className="relative">
+                    <User
+                      className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
+                    <input
+                      ref={nameInputRef}
+                      id="auth-name"
+                      type="text"
+                      maxLength={80}
+                      autoComplete="name"
+                      value={displayName}
+                      onChange={(e) => setDisplayName(e.target.value)}
+                      placeholder="Олександр"
+                      className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="space-y-1.5">
+                <label
+                  className="block text-xs font-medium text-zinc-300"
+                  htmlFor="auth-email"
+                >
+                  Електронна пошта
+                </label>
+                <div className="relative">
+                  <Mail
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                  />
+                  <input
+                    ref={emailInputRef}
+                    id="auth-email"
+                    type="email"
+                    required
+                    maxLength={254}
+                    autoComplete="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label
+                  className="block text-xs font-medium text-zinc-300"
+                  htmlFor="auth-password"
+                >
+                  Пароль (мін. 8 символів)
+                </label>
+                <div className="relative">
+                  <Lock
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+                    strokeWidth={1.75}
+                    aria-hidden="true"
+                  />
+                  <input
+                    id="auth-password"
+                    type="password"
+                    required
+                    minLength={8}
+                    maxLength={128}
+                    autoComplete={
+                      mode === 'register' ? 'new-password' : 'current-password'
+                    }
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                  />
+                </div>
+              </div>
+
+              {error && (
+                <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 px-3.5 py-2.5 text-xs text-rose-300 leading-relaxed">
+                  {error}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="group w-full min-h-[48px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white disabled:opacity-50 text-zinc-950 font-medium text-sm flex items-center justify-between transition-[background-color,transform,opacity] duration-200 active:scale-[0.98] cursor-pointer"
+              >
+                <span className="inline-flex items-center gap-2">
+                  {mode === 'register' ? (
+                    <>
+                      <UserPlus className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                      <span>{loading ? 'Створюємо кабінет...' : 'Зареєструватися'}</span>
+                    </>
+                  ) : (
+                    <span>{loading ? 'Виконується вхід...' : 'Увійти в кабінет'}</span>
+                  )}
+                </span>
+                <span className="h-8 w-8 rounded-full bg-zinc-950/10 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
+                  <ArrowRight className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                </span>
+              </button>
+            </form>
+
+            {!cloudEnabled && (
+              <div className="pt-3 border-t border-zinc-800/80 space-y-2">
+                <button
+                  type="button"
+                  disabled={loading}
+                  onClick={handleDemoLogin}
+                  className="w-full min-h-[44px] rounded-xl bg-zinc-950 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-800 font-medium text-xs flex items-center justify-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer"
+                >
+                  <Sparkles className="h-4 w-4 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
+                  <span>Швидкий демо-вхід (4 українські картки)</span>
+                </button>
+                <p className="text-[11px] text-center text-zinc-500">
+                  Локальний ізольований режим. Для хмарної синхронізації додайте ключі
+                  Supabase у .env
+                </p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  );
+
+  if (isNativeApp) {
+    return (
+      <div className="min-h-[100dvh] bg-zinc-950 text-zinc-100 flex flex-col justify-center px-4 py-8 pt-[calc(var(--sat)+1.5rem)] pb-[calc(var(--sab)+1.5rem)]">
+        <div className="mx-auto w-full max-w-md space-y-6">
+          <div className="flex flex-col items-center text-center space-y-2.5">
+            <span className="h-14 w-14 rounded-2xl bg-zinc-900 border border-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center">
+              <Radar className="h-7 w-7 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
+            </span>
+            <div>
+              <h1 className="text-2xl font-semibold text-zinc-50 tracking-tight">КешбекРадар</h1>
+              <p className="text-xs font-mono text-zinc-400 mt-0.5">
+                UA · {previewMonth} ·{' '}
+                <span className={cloudEnabled ? 'text-emerald-400' : 'text-zinc-400'}>
+                  {cloudEnabled ? 'Cloud' : 'Local'}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          {authCard}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] bg-zinc-950 text-zinc-100 flex flex-col">
@@ -1216,222 +1463,7 @@ export function AuthScreen({
             </div>
 
             <div className="lg:col-span-6 w-full">
-              <div className="bezel-shell">
-                <div className="bezel-core p-5 sm:p-6 space-y-5">
-                  {currentUser && onContinueToApp ? (
-                    <div className="space-y-5">
-                      <div className="space-y-1">
-                        <h3 className="text-xl sm:text-2xl font-semibold text-zinc-50 tracking-tight">
-                          Ви вже авторизовані
-                        </h3>
-                        <p className="text-sm text-zinc-400">
-                          Активна сесія учасника готова до роботи з Радаром вигоди
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl bg-zinc-950 border border-white/[0.07] p-4 flex items-center gap-3">
-                        <div className="h-11 w-11 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center shrink-0">
-                          <User className="h-5 w-5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-base font-semibold text-zinc-100 truncate">
-                            {currentUser.displayName}
-                          </div>
-                          <div className="text-xs sm:text-sm font-mono text-zinc-400 truncate">
-                            {currentUser.email}
-                          </div>
-                        </div>
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={onContinueToApp}
-                        className="group w-full min-h-[50px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-base flex items-center justify-between transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer"
-                      >
-                        <span>Перейти до робочого кабінету</span>
-                        <span className="h-8 w-8 rounded-full bg-zinc-950/10 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
-                          <ArrowRight className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-                        </span>
-                      </button>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="space-y-1">
-                        <h3 className="text-xl sm:text-2xl font-semibold text-zinc-50 tracking-tight">
-                          {mode === 'login' ? 'Вхід у персональний кабінет' : 'Реєстрація учасника'}
-                        </h3>
-                        <p className="text-sm text-zinc-400">
-                          Ваші картки та щомісячні відсотки доступні лише вам
-                        </p>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-1 rounded-xl bg-zinc-950 p-1 border border-zinc-800/90">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMode('login');
-                            setError(null);
-                          }}
-                          className={`min-h-[44px] rounded-lg text-sm font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
-                            mode === 'login'
-                              ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
-                              : 'text-zinc-400 hover:text-zinc-200'
-                          }`}
-                        >
-                          Вхід у кабінет
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setMode('register');
-                            setError(null);
-                          }}
-                          className={`min-h-[44px] rounded-lg text-sm font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
-                            mode === 'register'
-                              ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
-                              : 'text-zinc-400 hover:text-zinc-200'
-                          }`}
-                        >
-                          Реєстрація
-                        </button>
-                      </div>
-
-                      <form onSubmit={handleSubmit} className="space-y-4">
-                        {mode === 'register' && (
-                          <div className="space-y-1.5">
-                            <label
-                              className="block text-sm font-medium text-zinc-300"
-                              htmlFor="auth-name"
-                            >
-                              Ім’я учасника
-                            </label>
-                            <div className="relative">
-                              <User
-                                className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-zinc-500"
-                                strokeWidth={1.75}
-                                aria-hidden="true"
-                              />
-                              <input
-                                ref={nameInputRef}
-                                id="auth-name"
-                                type="text"
-                                maxLength={80}
-                                autoComplete="name"
-                                value={displayName}
-                                onChange={(e) => setDisplayName(e.target.value)}
-                                placeholder="Олександр"
-                                className="w-full min-h-[48px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-base text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
-                              />
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="space-y-1.5">
-                          <label
-                            className="block text-sm font-medium text-zinc-300"
-                            htmlFor="auth-email"
-                          >
-                            Електронна пошта
-                          </label>
-                          <div className="relative">
-                            <Mail
-                              className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-zinc-500"
-                              strokeWidth={1.75}
-                              aria-hidden="true"
-                            />
-                            <input
-                              ref={emailInputRef}
-                              id="auth-email"
-                              type="email"
-                              required
-                              maxLength={254}
-                              autoComplete="email"
-                              value={email}
-                              onChange={(e) => setEmail(e.target.value)}
-                              placeholder="name@example.com"
-                              className="w-full min-h-[48px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-base text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
-                            />
-                          </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                          <label
-                            className="block text-sm font-medium text-zinc-300"
-                            htmlFor="auth-password"
-                          >
-                            Пароль (мін. 8 символів)
-                          </label>
-                          <div className="relative">
-                            <Lock
-                              className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-zinc-500"
-                              strokeWidth={1.75}
-                              aria-hidden="true"
-                            />
-                            <input
-                              id="auth-password"
-                              type="password"
-                              required
-                              minLength={8}
-                              maxLength={128}
-                              autoComplete={
-                                mode === 'register' ? 'new-password' : 'current-password'
-                              }
-                              value={password}
-                              onChange={(e) => setPassword(e.target.value)}
-                              placeholder="••••••••"
-                              className="w-full min-h-[48px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-base text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
-                            />
-                          </div>
-                        </div>
-
-                        {error && (
-                          <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 px-3.5 py-2.5 text-sm text-rose-300 leading-relaxed">
-                            {error}
-                          </div>
-                        )}
-
-                        <button
-                          type="submit"
-                          disabled={loading}
-                          className="group w-full min-h-[50px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white disabled:opacity-50 text-zinc-950 font-medium text-base flex items-center justify-between transition-[background-color,transform,opacity] duration-200 active:scale-[0.98] cursor-pointer"
-                        >
-                          <span className="inline-flex items-center gap-2">
-                            {mode === 'register' ? (
-                              <>
-                                <UserPlus className="h-4.5 w-4.5" strokeWidth={1.75} aria-hidden="true" />
-                                <span>{loading ? 'Створюємо кабінет...' : 'Зареєструватися'}</span>
-                              </>
-                            ) : (
-                              <span>{loading ? 'Виконується вхід...' : 'Увійти в кабінет'}</span>
-                            )}
-                          </span>
-                          <span className="h-8 w-8 rounded-full bg-zinc-950/10 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
-                            <ArrowRight className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
-                          </span>
-                        </button>
-                      </form>
-
-                      {!cloudEnabled && (
-                        <div className="pt-3 border-t border-zinc-800/80 space-y-2">
-                          <button
-                            type="button"
-                            disabled={loading}
-                            onClick={handleDemoLogin}
-                            className="w-full min-h-[46px] rounded-xl bg-zinc-950 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-800 font-medium text-sm flex items-center justify-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer"
-                          >
-                            <Sparkles className="h-4 w-4 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
-                            <span>Швидкий демо-вхід (4 українські картки)</span>
-                          </button>
-                          <p className="text-xs text-center text-zinc-400">
-                            Локальний ізольований режим. Для хмарної синхронізації додайте ключі
-                            Supabase у .env
-                          </p>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </div>
-              </div>
+              {authCard}
             </div>
           </div>
         </section>

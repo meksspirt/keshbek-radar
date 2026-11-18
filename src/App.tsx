@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import {
   BookOpen,
   Compass,
@@ -527,7 +528,7 @@ export function App() {
         aria-label="Мобільна навігація"
         className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-zinc-950/95 backdrop-blur-md border-t border-white/[0.08] pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pl-[max(0.5rem,env(safe-area-inset-left,0px))] pr-[max(0.5rem,env(safe-area-inset-right,0px))]"
       >
-        <div className="grid grid-cols-4 min-h-14">
+        <div className={`grid min-h-14 ${Capacitor.isNativePlatform() ? 'grid-cols-3' : 'grid-cols-4'}`}>
           <button
             type="button"
             onClick={() => setActiveTab('radar')}
@@ -570,14 +571,16 @@ export function App() {
             <BookOpen className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
             <span>Довідник</span>
           </button>
-          <button
-            type="button"
-            onClick={() => setShowLanding(true)}
-            className="relative min-h-[52px] flex flex-col items-center justify-center gap-1 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
-          >
-            <Compass className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
-            <span>Проєкт</span>
-          </button>
+          {!Capacitor.isNativePlatform() && (
+            <button
+              type="button"
+              onClick={() => setShowLanding(true)}
+              className="relative min-h-[52px] flex flex-col items-center justify-center gap-1 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+            >
+              <Compass className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+              <span>Проєкт</span>
+            </button>
+          )}
         </div>
       </nav>
 
