@@ -137,11 +137,11 @@ export function ChangePasswordModal({
       });
       setCurrentPassword('');
       setNewPassword('');
-      setSuccessMessage(
-        isRecovery
-          ? 'Новий пароль збережено. Тепер ви можете користуватися ним для входу.'
-          : 'Пароль успішно змінено.',
-      );
+      if (isRecovery) {
+        dialogRef.current?.close();
+        return;
+      }
+      setSuccessMessage('Пароль успішно змінено.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Не вдалося змінити пароль.');
     } finally {

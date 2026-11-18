@@ -637,7 +637,13 @@ export function App() {
         isOpen={passwordModal.isOpen}
         user={user}
         isRecovery={passwordModal.isRecovery}
-        onClose={() => setPasswordModal({ isOpen: false, isRecovery: false })}
+        onClose={() => {
+          if (passwordModal.isRecovery) {
+            setShowLanding(false);
+            setActiveTab('radar');
+          }
+          setPasswordModal({ isOpen: false, isRecovery: false });
+        }}
       />
     </div>
   );
