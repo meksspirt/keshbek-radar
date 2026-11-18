@@ -6,7 +6,6 @@ import {
   LogOut,
   MessageSquarePlus,
   Percent,
-  Plus,
   Radar,
   Sparkles,
   User as UserIcon,
@@ -428,94 +427,79 @@ export function App() {
           <RadarSkeleton />
         ) : (
           <>
-            {/* Панель зведення гаманця на поточний місяць (Fintech Flagship Summary Bar) */}
-            <section aria-label="Зведення гаманця на місяць" className="bezel-shell-sm">
-              <div className="bezel-core-sm px-4 py-3 grid grid-cols-2 lg:grid-cols-4 gap-3 items-center">
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('wallet')}
-                  className="text-left rounded-xl px-2.5 py-1.5 hover:bg-white/[0.03] transition-colors cursor-pointer"
-                >
-                  <div className="text-[11px] text-zinc-400">Картки користувача</div>
-                  <div className="mt-0.5 flex items-baseline gap-1.5 font-mono tabular-nums">
-                    <span className="text-sm font-semibold text-zinc-50">
-                      {walletSummary.activeCardsCount} активних
-                    </span>
-                    <span className="text-xs text-zinc-500">із {walletSummary.totalCardsCount}</span>
-                  </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('wallet')}
-                  className="text-left rounded-xl px-2.5 py-1.5 hover:bg-white/[0.03] transition-colors cursor-pointer"
-                >
-                  <div className="text-[11px] text-zinc-400">
-                    Правила · {formatMonthLabel(monthYear)}
-                  </div>
-                  <div className="mt-0.5 flex items-baseline gap-2 font-mono tabular-nums">
-                    <span className="text-sm font-semibold text-zinc-50">
-                      {walletSummary.activeRulesCount} правил
-                    </span>
-                    {walletSummary.maxRatePercent > 0 && (
-                      <span className="text-xs text-emerald-400">
-                        до {formatPercent(walletSummary.maxRatePercent)}
+            {/* Панель зведення гаманця на поточний місяць показується у розділі гаманця, щоб Радар залишався максимально сфокусованим */}
+            {activeTab === 'wallet' && (
+              <section aria-label="Зведення гаманця на місяць" className="bezel-shell-sm">
+                <div className="bezel-core-sm px-4 py-3 grid grid-cols-2 lg:grid-cols-4 gap-3 items-center">
+                  <div className="rounded-xl px-2.5 py-1.5">
+                    <div className="text-[11px] text-zinc-400">Картки користувача</div>
+                    <div className="mt-0.5 flex items-baseline gap-1.5 font-mono tabular-nums">
+                      <span className="text-sm font-semibold text-zinc-50">
+                        {walletSummary.activeCardsCount} активних
                       </span>
+                      <span className="text-xs text-zinc-500">із {walletSummary.totalCardsCount}</span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl px-2.5 py-1.5">
+                    <div className="text-[11px] text-zinc-400">
+                      Правила · {formatMonthLabel(monthYear)}
+                    </div>
+                    <div className="mt-0.5 flex items-baseline gap-2 font-mono tabular-nums">
+                      <span className="text-sm font-semibold text-zinc-50">
+                        {walletSummary.activeRulesCount} правил
+                      </span>
+                      {walletSummary.maxRatePercent > 0 && (
+                        <span className="text-xs text-emerald-400">
+                          до {formatPercent(walletSummary.maxRatePercent)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleChangeTaxMode(user.preferredTaxMode === 'NET' ? 'GROSS' : 'NET')
+                    }
+                    className="text-left rounded-xl px-2.5 py-1.5 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                  >
+                    <div className="text-[11px] text-zinc-400 flex items-center gap-1">
+                      <Percent className="h-3 w-3 text-zinc-500" strokeWidth={1.75} aria-hidden="true" />
+                      <span>Режим кешбеку</span>
+                    </div>
+                    <div className="mt-0.5 text-xs font-medium text-zinc-200 font-mono">
+                      {user.preferredTaxMode === 'NET'
+                        ? 'Чистий кешбек (-23%)'
+                        : 'Брудний кешбек (100%)'}
+                    </div>
+                  </button>
+
+                  <div className="flex items-center justify-start lg:justify-end gap-2">
+                    {cards.length === 0 ? (
+                      <button
+                        type="button"
+                        disabled={loadingDemoWallet}
+                        onClick={handlePopulateDemoWallet}
+                        className="min-h-[36px] px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        <span>{loadingDemoWallet ? 'Завантажуємо...' : 'Заповнити 4 картки'}</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setActiveTab('radar')}
+                        className="min-h-[36px] px-3 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Radar className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        <span>До Радару вигоди</span>
+                      </button>
                     )}
                   </div>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    handleChangeTaxMode(user.preferredTaxMode === 'NET' ? 'GROSS' : 'NET')
-                  }
-                  className="text-left rounded-xl px-2.5 py-1.5 hover:bg-white/[0.03] transition-colors cursor-pointer"
-                >
-                  <div className="text-[11px] text-zinc-400 flex items-center gap-1">
-                    <Percent className="h-3 w-3 text-zinc-500" strokeWidth={1.75} aria-hidden="true" />
-                    <span>Режим кешбеку</span>
-                  </div>
-                  <div className="mt-0.5 text-xs font-medium text-zinc-200 font-mono">
-                    {user.preferredTaxMode === 'NET'
-                      ? 'Чистий кешбек (-23%)'
-                      : 'Брудний кешбек (100%)'}
-                  </div>
-                </button>
-
-                <div className="flex items-center justify-start lg:justify-end gap-2">
-                  {cards.length === 0 ? (
-                    <button
-                      type="button"
-                      disabled={loadingDemoWallet}
-                      onClick={handlePopulateDemoWallet}
-                      className="min-h-[36px] px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
-                      <span>{loadingDemoWallet ? 'Завантажуємо...' : 'Заповнити 4 картки'}</span>
-                    </button>
-                  ) : activeTab !== 'wallet' ? (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('wallet')}
-                      className="min-h-[36px] px-3 rounded-xl bg-zinc-950 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <Plus className="h-3.5 w-3.5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
-                      <span>Налаштувати ставки</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => setActiveTab('radar')}
-                      className="min-h-[36px] px-3 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
-                    >
-                      <Radar className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
-                      <span>До Радару вигоди</span>
-                    </button>
-                  )}
                 </div>
-              </div>
-            </section>
+              </section>
+            )}
 
             {activeTab === 'radar' ? (
               <RadarView
