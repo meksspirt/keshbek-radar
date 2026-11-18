@@ -16,6 +16,12 @@ supabase/
 android/app/build/
 android/.gradle/
 android/local.properties
+android/keystore/
+android/keystore.properties
+*.jks
+*.keystore
+google-play-release/*.aab
+google-play-release/*.apk
 
 # Редактори, агенти та ОС
 .agents/
