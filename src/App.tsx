@@ -1,10 +1,14 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   BookOpen,
+  Compass,
   CreditCard,
   LogOut,
   MessageSquarePlus,
+  Percent,
+  Plus,
   Radar,
+  Sparkles,
   User as UserIcon,
 } from 'lucide-react';
 import { AuthScreen } from './components/AuthScreen';
@@ -29,6 +33,31 @@ import type {
 
 type AppTab = 'radar' | 'wallet' | 'catalog';
 
+const MONTH_NAMES_UK = [
+  'Січень',
+  'Лютий',
+  'Березень',
+  'Квітень',
+  'Травень',
+  'Червень',
+  'Липень',
+  'Серпень',
+  'Вересень',
+  'Жовтень',
+  'Листопад',
+  'Грудень',
+];
+
+function formatMonthLabel(monthYear: string): string {
+  const [y, m] = monthYear.split('-');
+  const idx = Number(m) - 1;
+  return `${MONTH_NAMES_UK[idx] ?? monthYear} ${y}`;
+}
+
+function formatPercent(value: number): string {
+  return Number.isInteger(value) ? `${value}%` : `${value.toFixed(2).replace(/\.?0+$/, '')}%`;
+}
+
 function RadarSkeleton() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
@@ -52,12 +81,14 @@ function RadarSkeleton() {
 export function App() {
   const [user, setUser] = useState<ParticipantUser | null>(null);
   const [checkingSession, setCheckingSession] = useState(true);
+  const [showLanding, setShowLanding] = useState(false);
   const [activeTab, setActiveTab] = useState<AppTab>('radar');
   const [monthYear] = useState(() => getCurrentMonthYear());
 
   const [cards, setCards] = useState<UserCard[]>([]);
   const [rules, setRules] = useState<CashbackRule[]>([]);
   const [loadingWallet, setLoadingWallet] = useState(false);
+  const [loadingDemoWallet, setLoadingDemoWallet] = useState(false);
 
   const [externalCatSelection, setExternalCatSelection] = useState<{
     id: CategoryId;
@@ -102,8 +133,27 @@ export function App() {
     };
   }, [loadWalletForUser]);
 
+  const walletSummary = useMemo(() => {
+    const activeCardsCount = cards.filter((c) => c.isActive).length;
+    const monthRules = rules.filter((r) => r.monthYear === monthYear);
+    const activeRulesCount = monthRules.filter(
+      (r) => r.rateOwnFunds > 0 || r.rateCreditFunds > 0,
+    ).length;
+    const maxRatePercent = monthRules.reduce(
+      (max, r) => Math.max(max, r.rateOwnFunds, r.rateCreditFunds),
+      0,
+    );
+    return {
+      activeCardsCount,
+      totalCardsCount: cards.length,
+      activeRulesCount,
+      maxRatePercent,
+    };
+  }, [cards, rules, monthYear]);
+
   async function handleAuthenticated(authenticatedUser: ParticipantUser) {
     setUser(authenticatedUser);
+    setShowLanding(false);
     setActiveTab('radar');
     await loadWalletForUser(authenticatedUser.id);
   }
@@ -111,6 +161,7 @@ export function App() {
   async function handleLogout() {
     await authAndDataService.logoutParticipant();
     setUser(null);
+    setShowLanding(false);
     setCards([]);
     setRules([]);
     setSuggestionModal({ isOpen: false });
@@ -185,9 +236,14 @@ export function App() {
 
   async function handlePopulateDemoWallet() {
     if (!user) return;
-    const wallet = await authAndDataService.populateStarterCards(user.id, monthYear);
-    setCards(wallet.cards);
-    setRules(wallet.rules);
+    setLoadingDemoWallet(true);
+    try {
+      const wallet = await authAndDataService.populateStarterCards(user.id, monthYear);
+      setCards(wallet.cards);
+      setRules(wallet.rules);
+    } finally {
+      setLoadingDemoWallet(false);
+    }
   }
 
   if (checkingSession) {
@@ -201,27 +257,40 @@ export function App() {
     );
   }
 
-  if (!user) {
-    return <AuthScreen onAuthenticated={handleAuthenticated} />;
+  if (!user || showLanding) {
+    return (
+      <AuthScreen
+        onAuthenticated={handleAuthenticated}
+        currentUser={user}
+        onContinueToApp={() => setShowLanding(false)}
+      />
+    );
   }
 
   const cloudEnabled = authAndDataService.isCloudEnabled();
 
   return (
     <div className="min-h-[100dvh] bg-zinc-950 text-zinc-100 flex flex-col">
-      {/* Верхній хедер */}
-      <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-md border-b border-white/[0.07]">
+      <a
+        href="#app-main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-xl focus:bg-zinc-100 focus:px-4 focus:py-2.5 focus:text-xs focus:font-medium focus:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+      >
+        Перейти до основного вмісту
+      </a>
+
+      {/* Флагманський верхній хедер кабінету */}
+      <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-xl border-b border-white/[0.07]">
         <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5">
-            <div className="h-9 w-9 rounded-xl bg-zinc-900 border border-white/[0.08] flex items-center justify-center shrink-0">
-              <Radar className="h-4.5 w-4.5 text-emerald-400" strokeWidth={1.75} />
+          <div className="flex items-center gap-2.5 shrink-0">
+            <div className="h-9 w-9 rounded-xl bg-zinc-900 border border-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center shrink-0">
+              <Radar className="h-4.5 w-4.5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
             </div>
             <div>
               <div className="text-sm font-semibold text-zinc-50 leading-tight">КешбекРадар</div>
-              <div className="text-[11px] font-mono text-zinc-500 flex items-center gap-1.5">
+              <div className="text-[11px] font-mono text-zinc-400 flex items-center gap-1.5">
                 <span>{monthYear}</span>
-                <span>·</span>
-                <span className={cloudEnabled ? 'text-emerald-400' : 'text-zinc-500'}>
+                <span aria-hidden="true">·</span>
+                <span className={cloudEnabled ? 'text-emerald-400' : 'text-zinc-400'}>
                   {cloudEnabled ? 'Cloud' : 'Local'}
                 </span>
               </div>
@@ -229,60 +298,113 @@ export function App() {
           </div>
 
           {/* Навігація для десктопу */}
-          <nav className="hidden md:flex items-center gap-1 rounded-xl bg-zinc-900 p-1 border border-zinc-800/90">
+          <nav
+            aria-label="Навігація кабінету"
+            className="hidden md:flex items-center gap-1 rounded-full bg-zinc-900/90 p-1 border border-white/[0.08]"
+          >
             <button
               type="button"
               onClick={() => setActiveTab('radar')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
+              aria-current={activeTab === 'radar' ? 'page' : undefined}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 activeTab === 'radar'
-                  ? 'bg-zinc-800 text-zinc-50'
+                  ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
                   : 'text-zinc-400 hover:text-zinc-100'
               }`}
             >
-              <Radar className="h-3.5 w-3.5" strokeWidth={1.75} />
-              Радар вигоди
+              {activeTab === 'radar' && (
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              )}
+              <Radar className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+              <span>Радар вигоди</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('wallet')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
+              aria-current={activeTab === 'wallet' ? 'page' : undefined}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 activeTab === 'wallet'
-                  ? 'bg-zinc-800 text-zinc-50'
+                  ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
                   : 'text-zinc-400 hover:text-zinc-100'
               }`}
             >
-              <CreditCard className="h-3.5 w-3.5" strokeWidth={1.75} />
-              Мої картки ({cards.length})
+              {activeTab === 'wallet' && (
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              )}
+              <CreditCard className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+              <span>Мої картки ({cards.length})</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('catalog')}
-              className={`px-3.5 py-1.5 rounded-lg text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer ${
+              aria-current={activeTab === 'catalog' ? 'page' : undefined}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 activeTab === 'catalog'
-                  ? 'bg-zinc-800 text-zinc-50'
+                  ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
                   : 'text-zinc-400 hover:text-zinc-100'
               }`}
             >
-              <BookOpen className="h-3.5 w-3.5" strokeWidth={1.75} />
-              Довідник України
+              {activeTab === 'catalog' && (
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
+              )}
+              <BookOpen className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+              <span>Довідник України</span>
             </button>
           </nav>
 
-          {/* Кнопка «Запропонувати зміни» та профіль */}
-          <div className="flex items-center gap-2">
+          {/* Швидкі дії, податковий режим та профіль */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div
+              role="group"
+              aria-label="Режим податку в шапці"
+              className="hidden lg:inline-flex items-center rounded-xl bg-zinc-900 p-0.5 border border-white/[0.08]"
+            >
+              <button
+                type="button"
+                onClick={() => handleChangeTaxMode('NET')}
+                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-colors cursor-pointer ${
+                  user.preferredTaxMode === 'NET'
+                    ? 'bg-zinc-800 text-emerald-300'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                -23%
+              </button>
+              <button
+                type="button"
+                onClick={() => handleChangeTaxMode('GROSS')}
+                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-colors cursor-pointer ${
+                  user.preferredTaxMode === 'GROSS'
+                    ? 'bg-zinc-800 text-zinc-100'
+                    : 'text-zinc-400 hover:text-zinc-200'
+                }`}
+              >
+                100%
+              </button>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowLanding(true)}
+              className="hidden md:inline-flex min-h-[38px] px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-300 hover:text-zinc-50 text-xs font-medium items-center gap-1.5 transition-colors cursor-pointer"
+            >
+              <Compass className="h-3.5 w-3.5 text-zinc-400" strokeWidth={1.75} aria-hidden="true" />
+              <span>Про проєкт</span>
+            </button>
+
             <button
               type="button"
               onClick={() => setSuggestionModal({ isOpen: true })}
-              className="min-h-[38px] px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer"
+              className="min-h-[38px] px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer"
             >
-              <MessageSquarePlus className="h-3.5 w-3.5 text-emerald-400 shrink-0" strokeWidth={1.75} />
+              <MessageSquarePlus className="h-3.5 w-3.5 text-emerald-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
               <span className="hidden sm:inline">Запропонувати зміни</span>
               <span className="sm:hidden">Зміни</span>
             </button>
 
-            <div className="hidden sm:flex items-center gap-2 rounded-xl bg-zinc-900 border border-zinc-800 px-3 py-1.5">
-              <UserIcon className="h-3.5 w-3.5 text-zinc-400" strokeWidth={1.75} />
-              <span className="text-xs font-medium text-zinc-200 max-w-[120px] truncate">
+            <div className="hidden sm:flex items-center gap-2 rounded-xl bg-zinc-900 border border-white/[0.08] px-3 py-1.5">
+              <UserIcon className="h-3.5 w-3.5 text-zinc-400" strokeWidth={1.75} aria-hidden="true" />
+              <span className="text-xs font-medium text-zinc-200 max-w-[110px] truncate">
                 {user.displayName}
               </span>
             </div>
@@ -292,61 +414,154 @@ export function App() {
               onClick={handleLogout}
               title="Вийти з кабінету"
               aria-label="Вийти з кабінету"
-              className="min-h-[38px] min-w-[38px] rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-zinc-400 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer"
+              className="min-h-[38px] min-w-[38px] rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-400 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer"
             >
-              <LogOut className="h-4 w-4" strokeWidth={1.75} />
+              <LogOut className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
             </button>
           </div>
         </div>
       </header>
 
       {/* Основний контент */}
-      <main className="flex-1 mx-auto w-full max-w-6xl px-4 pt-6 pb-24 md:pb-12">
+      <main id="app-main-content" className="flex-1 mx-auto w-full max-w-6xl px-4 pt-5 pb-24 md:pb-12 space-y-5">
         {loadingWallet ? (
           <RadarSkeleton />
-        ) : activeTab === 'radar' ? (
-          <RadarView
-            cards={cards}
-            rules={rules}
-            monthYear={monthYear}
-            taxMode={user.preferredTaxMode}
-            externalCategorySelection={externalCatSelection}
-            onChangeTaxMode={handleChangeTaxMode}
-            onGoToWallet={() => setActiveTab('wallet')}
-            onPopulateDemoWallet={handlePopulateDemoWallet}
-            onOpenSuggestion={(params) =>
-              setSuggestionModal({
-                isOpen: true,
-                ...params,
-              })
-            }
-          />
-        ) : activeTab === 'wallet' ? (
-          <WalletView
-            cards={cards}
-            rules={rules}
-            monthYear={monthYear}
-            onAddCard={handleAddCard}
-            onToggleCardActive={handleToggleCardActive}
-            onDeleteCard={handleDeleteCard}
-            onUpsertRule={handleUpsertRule}
-            onDeleteRule={handleDeleteRule}
-            onResetMonthRates={handleResetMonthRates}
-            onPopulateDemoWallet={handlePopulateDemoWallet}
-          />
         ) : (
-          <CatalogView
-            onSelectCategoryForRadar={(categoryId) => {
-              setExternalCatSelection({ id: categoryId, nonce: Date.now() });
-              setActiveTab('radar');
-            }}
-            onOpenSuggestion={(params) =>
-              setSuggestionModal({
-                isOpen: true,
-                ...params,
-              })
-            }
-          />
+          <>
+            {/* Панель зведення гаманця на поточний місяць (Fintech Flagship Summary Bar) */}
+            <section aria-label="Зведення гаманця на місяць" className="bezel-shell-sm">
+              <div className="bezel-core-sm px-4 py-3 grid grid-cols-2 lg:grid-cols-4 gap-3 items-center">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('wallet')}
+                  className="text-left rounded-xl px-2.5 py-1.5 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                >
+                  <div className="text-[11px] text-zinc-400">Картки користувача</div>
+                  <div className="mt-0.5 flex items-baseline gap-1.5 font-mono tabular-nums">
+                    <span className="text-sm font-semibold text-zinc-50">
+                      {walletSummary.activeCardsCount} активних
+                    </span>
+                    <span className="text-xs text-zinc-500">із {walletSummary.totalCardsCount}</span>
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('wallet')}
+                  className="text-left rounded-xl px-2.5 py-1.5 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                >
+                  <div className="text-[11px] text-zinc-400">
+                    Правила · {formatMonthLabel(monthYear)}
+                  </div>
+                  <div className="mt-0.5 flex items-baseline gap-2 font-mono tabular-nums">
+                    <span className="text-sm font-semibold text-zinc-50">
+                      {walletSummary.activeRulesCount} правил
+                    </span>
+                    {walletSummary.maxRatePercent > 0 && (
+                      <span className="text-xs text-emerald-400">
+                        до {formatPercent(walletSummary.maxRatePercent)}
+                      </span>
+                    )}
+                  </div>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    handleChangeTaxMode(user.preferredTaxMode === 'NET' ? 'GROSS' : 'NET')
+                  }
+                  className="text-left rounded-xl px-2.5 py-1.5 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                >
+                  <div className="text-[11px] text-zinc-400 flex items-center gap-1">
+                    <Percent className="h-3 w-3 text-zinc-500" strokeWidth={1.75} aria-hidden="true" />
+                    <span>Режим кешбеку</span>
+                  </div>
+                  <div className="mt-0.5 text-xs font-medium text-zinc-200 font-mono">
+                    {user.preferredTaxMode === 'NET'
+                      ? 'Чистий кешбек (-23%)'
+                      : 'Брудний кешбек (100%)'}
+                  </div>
+                </button>
+
+                <div className="flex items-center justify-start lg:justify-end gap-2">
+                  {cards.length === 0 ? (
+                    <button
+                      type="button"
+                      disabled={loadingDemoWallet}
+                      onClick={handlePopulateDemoWallet}
+                      className="min-h-[36px] px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                      <span>{loadingDemoWallet ? 'Завантажуємо...' : 'Заповнити 4 картки'}</span>
+                    </button>
+                  ) : activeTab !== 'wallet' ? (
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('wallet')}
+                      className="min-h-[36px] px-3 rounded-xl bg-zinc-950 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Plus className="h-3.5 w-3.5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
+                      <span>Налаштувати ставки</span>
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab('radar')}
+                      className="min-h-[36px] px-3 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                    >
+                      <Radar className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                      <span>До Радару вигоди</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            {activeTab === 'radar' ? (
+              <RadarView
+                cards={cards}
+                rules={rules}
+                monthYear={monthYear}
+                taxMode={user.preferredTaxMode}
+                externalCategorySelection={externalCatSelection}
+                onChangeTaxMode={handleChangeTaxMode}
+                onGoToWallet={() => setActiveTab('wallet')}
+                onPopulateDemoWallet={handlePopulateDemoWallet}
+                onOpenSuggestion={(params) =>
+                  setSuggestionModal({
+                    isOpen: true,
+                    ...params,
+                  })
+                }
+              />
+            ) : activeTab === 'wallet' ? (
+              <WalletView
+                cards={cards}
+                rules={rules}
+                monthYear={monthYear}
+                onAddCard={handleAddCard}
+                onToggleCardActive={handleToggleCardActive}
+                onDeleteCard={handleDeleteCard}
+                onUpsertRule={handleUpsertRule}
+                onDeleteRule={handleDeleteRule}
+                onResetMonthRates={handleResetMonthRates}
+                onPopulateDemoWallet={handlePopulateDemoWallet}
+              />
+            ) : (
+              <CatalogView
+                onSelectCategoryForRadar={(categoryId) => {
+                  setExternalCatSelection({ id: categoryId, nonce: Date.now() });
+                  setActiveTab('radar');
+                }}
+                onOpenSuggestion={(params) =>
+                  setSuggestionModal({
+                    isOpen: true,
+                    ...params,
+                  })
+                }
+              />
+            )}
+          </>
         )}
       </main>
 
@@ -355,36 +570,56 @@ export function App() {
         aria-label="Мобільна навігація"
         className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-zinc-950/95 backdrop-blur-md border-t border-white/[0.08] pb-[env(safe-area-inset-bottom,0px)]"
       >
-        <div className="grid grid-cols-3 h-16">
+        <div className="grid grid-cols-4 h-16">
           <button
             type="button"
             onClick={() => setActiveTab('radar')}
-            className={`flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer ${
+            aria-current={activeTab === 'radar' ? 'page' : undefined}
+            className={`relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer ${
               activeTab === 'radar' ? 'text-emerald-400' : 'text-zinc-400'
             }`}
           >
-            <Radar className="h-5 w-5" strokeWidth={1.75} />
+            {activeTab === 'radar' && (
+              <span className="absolute top-0 h-0.5 w-6 rounded-full bg-emerald-400" aria-hidden="true" />
+            )}
+            <Radar className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
             <span>Радар</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('wallet')}
-            className={`flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer ${
+            aria-current={activeTab === 'wallet' ? 'page' : undefined}
+            className={`relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer ${
               activeTab === 'wallet' ? 'text-emerald-400' : 'text-zinc-400'
             }`}
           >
-            <CreditCard className="h-5 w-5" strokeWidth={1.75} />
+            {activeTab === 'wallet' && (
+              <span className="absolute top-0 h-0.5 w-6 rounded-full bg-emerald-400" aria-hidden="true" />
+            )}
+            <CreditCard className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
             <span>Картки ({cards.length})</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('catalog')}
-            className={`flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer ${
+            aria-current={activeTab === 'catalog' ? 'page' : undefined}
+            className={`relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer ${
               activeTab === 'catalog' ? 'text-emerald-400' : 'text-zinc-400'
             }`}
           >
-            <BookOpen className="h-5 w-5" strokeWidth={1.75} />
+            {activeTab === 'catalog' && (
+              <span className="absolute top-0 h-0.5 w-6 rounded-full bg-emerald-400" aria-hidden="true" />
+            )}
+            <BookOpen className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
             <span>Довідник</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowLanding(true)}
+            className="relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+          >
+            <Compass className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
+            <span>Проєкт</span>
           </button>
         </div>
       </nav>
