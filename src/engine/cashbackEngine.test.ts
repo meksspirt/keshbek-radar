@@ -214,4 +214,21 @@ describe('evaluatePurchase', () => {
     expect(winner.ownFunds.ratePercent).toBe(3);
     expect(winner.ownFunds.grossCashbackUah).toBe(15);
   });
+
+  it('обмежує надмірні суми та довгі пошукові запити без збоїв', () => {
+    const longQuery = 'а'.repeat(5000);
+    const result = evaluatePurchase({
+      query: {
+        query: longQuery,
+        amountUah: Number.MAX_SAFE_INTEGER,
+        taxMode: 'NET',
+      },
+      cards: sampleCards,
+      rules: sampleRules,
+      monthYear: MONTH,
+    });
+
+    expect(result.isDefaultAmount).toBe(true);
+    expect(result.effectiveAmountUah).toBe(1000);
+  });
 });

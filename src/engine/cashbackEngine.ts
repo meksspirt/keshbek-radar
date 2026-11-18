@@ -15,6 +15,8 @@ import type {
 } from '../types/domain';
 
 export const DEFAULT_REFERENCE_AMOUNT_UAH = 1000;
+const MAX_QUERY_LENGTH = 120;
+const MAX_AMOUNT_UAH = 100_000_000;
 
 /**
  * Нормалізує український, російський або англійський пошуковий рядок
@@ -152,7 +154,7 @@ export function resolvePurchaseQuery(
     }
   }
 
-  const trimmed = query.trim();
+  const trimmed = query.trim().slice(0, MAX_QUERY_LENGTH);
   if (!trimmed) {
     return {
       matchedMerchant: null,
@@ -428,11 +430,17 @@ export function evaluatePurchase({
   const categoriesMap =
     categories === UA_CATEGORIES ? CATEGORY_BY_ID : new Map(categories.map((c) => [c.id, c]));
 
-  const hasValidAmount = typeof query.amountUah === 'number' && Number.isFinite(query.amountUah) && query.amountUah > 0;
+  const hasValidAmount =
+    typeof query.amountUah === 'number' &&
+    Number.isFinite(query.amountUah) &&
+    query.amountUah > 0 &&
+    query.amountUah <= MAX_AMOUNT_UAH;
   const effectiveAmountUah = hasValidAmount ? roundMoney(query.amountUah as number) : DEFAULT_REFERENCE_AMOUNT_UAH;
 
+  const boundedQuery = query.query.slice(0, MAX_QUERY_LENGTH);
+
   const resolution = resolvePurchaseQuery(
-    query.query,
+    boundedQuery,
     categories,
     merchants,
     query.selectedCategoryId,
@@ -440,7 +448,7 @@ export function evaluatePurchase({
   );
 
   // Також перевіряємо, чи не збігається запит напряму з кастомним партнером у правилах користувача
-  const normalizedQuery = normalizeSearchText(query.query);
+  const normalizedQuery = normalizeSearchText(boundedQuery);
   const activeCards = cards.filter((c) => c.isActive);
 
   const recommendations: PaymentRecommendation[] = [];

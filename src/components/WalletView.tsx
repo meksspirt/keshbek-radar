@@ -167,6 +167,15 @@ export function WalletView({
     }
   }
 
+  async function runSafeAction(action: () => Promise<void>, fallbackMessage: string) {
+    setErrorMsg(null);
+    try {
+      await action();
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : fallbackMessage);
+    }
+  }
+
   return (
     <div className="space-y-6 pb-10 animate-radar-enter">
       {/* Верхня панель керування гаманцем */}
@@ -189,10 +198,12 @@ export function WalletView({
               <div className="inline-flex items-center gap-1 rounded-xl bg-rose-500/10 border border-rose-500/30 p-1">
                 <button
                   type="button"
-                  onClick={async () => {
-                    await onResetMonthRates(monthYear);
-                    setConfirmReset(false);
-                  }}
+                  onClick={() =>
+                    void runSafeAction(async () => {
+                      await onResetMonthRates(monthYear);
+                      setConfirmReset(false);
+                    }, 'Не вдалося обнулити ставки.')
+                  }
                   className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs font-medium cursor-pointer"
                 >
                   Підтвердити обнулення
@@ -289,6 +300,7 @@ export function WalletView({
                 id="card-name-input"
                 type="text"
                 required
+                maxLength={120}
                 value={cardNameInput}
                 onChange={(e) => setCardNameInput(e.target.value)}
                 placeholder="Наприклад: Чорна картка"
@@ -402,7 +414,12 @@ export function WalletView({
                     <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => onToggleCardActive(card.id, !card.isActive)}
+                        onClick={() =>
+                          void runSafeAction(
+                            () => onToggleCardActive(card.id, !card.isActive),
+                            'Не вдалося змінити статус картки.',
+                          )
+                        }
                         className={`min-h-[36px] px-3 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
                           card.isActive
                             ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
@@ -426,7 +443,12 @@ export function WalletView({
 
                       <button
                         type="button"
-                        onClick={() => onDeleteCard(card.id)}
+                        onClick={() =>
+                          void runSafeAction(
+                            () => onDeleteCard(card.id),
+                            'Не вдалося видалити картку.',
+                          )
+                        }
                         aria-label={`Видалити картку ${card.cardName}`}
                         className="min-h-[36px] min-w-[36px] rounded-lg bg-zinc-950 hover:bg-rose-500/15 border border-zinc-800 text-zinc-500 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer"
                       >
@@ -510,6 +532,7 @@ export function WalletView({
                             </label>
                             <input
                               type="text"
+                              maxLength={120}
                               value={customPartnerInput}
                               onChange={(e) => setCustomPartnerInput(e.target.value)}
                               placeholder="Напр. Сільпо або Аврора"
@@ -616,17 +639,21 @@ export function WalletView({
                                   max="100"
                                   value={rule.rateOwnFunds}
                                   onChange={(e) =>
-                                    onUpsertRule({
-                                      id: rule.id,
-                                      cardId: rule.cardId,
-                                      monthYear: rule.monthYear,
-                                      ruleType: rule.ruleType,
-                                      categoryId: rule.categoryId,
-                                      merchantId: rule.merchantId,
-                                      customPartnerName: rule.customPartnerName,
-                                      rateOwnFunds: Number(e.target.value) || 0,
-                                      rateCreditFunds: rule.rateCreditFunds,
-                                    })
+                                    void runSafeAction(
+                                      () =>
+                                        onUpsertRule({
+                                          id: rule.id,
+                                          cardId: rule.cardId,
+                                          monthYear: rule.monthYear,
+                                          ruleType: rule.ruleType,
+                                          categoryId: rule.categoryId,
+                                          merchantId: rule.merchantId,
+                                          customPartnerName: rule.customPartnerName,
+                                          rateOwnFunds: Number(e.target.value) || 0,
+                                          rateCreditFunds: rule.rateCreditFunds,
+                                        }),
+                                      'Не вдалося оновити відсоток.',
+                                    )
                                   }
                                   className="w-12 bg-transparent font-mono font-medium tabular-nums text-zinc-100 text-right focus:outline-none"
                                 />
@@ -642,17 +669,21 @@ export function WalletView({
                                   max="100"
                                   value={rule.rateCreditFunds}
                                   onChange={(e) =>
-                                    onUpsertRule({
-                                      id: rule.id,
-                                      cardId: rule.cardId,
-                                      monthYear: rule.monthYear,
-                                      ruleType: rule.ruleType,
-                                      categoryId: rule.categoryId,
-                                      merchantId: rule.merchantId,
-                                      customPartnerName: rule.customPartnerName,
-                                      rateOwnFunds: rule.rateOwnFunds,
-                                      rateCreditFunds: Number(e.target.value) || 0,
-                                    })
+                                    void runSafeAction(
+                                      () =>
+                                        onUpsertRule({
+                                          id: rule.id,
+                                          cardId: rule.cardId,
+                                          monthYear: rule.monthYear,
+                                          ruleType: rule.ruleType,
+                                          categoryId: rule.categoryId,
+                                          merchantId: rule.merchantId,
+                                          customPartnerName: rule.customPartnerName,
+                                          rateOwnFunds: rule.rateOwnFunds,
+                                          rateCreditFunds: Number(e.target.value) || 0,
+                                        }),
+                                      'Не вдалося оновити відсоток.',
+                                    )
                                   }
                                   className="w-12 bg-transparent font-mono font-medium tabular-nums text-zinc-100 text-right focus:outline-none"
                                 />
@@ -661,7 +692,12 @@ export function WalletView({
 
                               <button
                                 type="button"
-                                onClick={() => onDeleteRule(rule.id)}
+                                onClick={() =>
+                                  void runSafeAction(
+                                    () => onDeleteRule(rule.id),
+                                    'Не вдалося видалити правило.',
+                                  )
+                                }
                                 aria-label={`Видалити правило ${label}`}
                                 className="h-7 w-7 rounded-lg flex items-center justify-center text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 transition-colors cursor-pointer"
                               >

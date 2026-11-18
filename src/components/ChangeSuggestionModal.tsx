@@ -229,6 +229,7 @@ export function ChangeSuggestionModal({
                 id="sug-target"
                 type="text"
                 required
+                maxLength={200}
                 value={targetName}
                 onChange={(e) => setTargetName(e.target.value)}
                 placeholder="Наприклад: Лоток, ПУМБ або Аврора"
@@ -282,6 +283,7 @@ export function ChangeSuggestionModal({
               <textarea
                 id="sug-details"
                 required
+                maxLength={2000}
                 rows={3}
                 value={details}
                 onChange={(e) => setDetails(e.target.value)}

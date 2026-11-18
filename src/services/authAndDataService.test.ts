@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createAuthAndDataService, type StorageLike } from './authAndDataService';
+import { isValidSupabaseClientConfig } from './supabaseClient';
 
 function createInMemoryStorage(): StorageLike {
   const store = new Map<string, string>();
@@ -118,5 +119,116 @@ describe('Multi-tenant ізоляція даних учасників та пр�
     expect(wallet.rules).toHaveLength(1);
     expect(wallet.rules[0].rateOwnFunds).toBe(0);
     expect(wallet.rules[0].rateCreditFunds).toBe(0);
+  });
+
+  it('застосовує PBKDF2-HMAC-SHA256 для паролів і блокує підроблену локальну сесію', async () => {
+    const storage = createInMemoryStorage();
+    const service = createAuthAndDataService({ storage, useCloud: false });
+
+    const user = await service.registerParticipant('sec@example.ua', 'StrongPass2026!', 'Безпека');
+
+    const storedAccounts = JSON.parse(
+      storage.getItem('cashback_radar_local_accounts_v1') ?? '[]',
+    ) as Array<{ email: string; passwordHash: string }>;
+    expect(storedAccounts).toHaveLength(1);
+    expect(storedAccounts[0].passwordHash).toMatch(/^pbkdf2_sha256\$600000\$[0-9a-f]{64}$/);
+
+    await expect(service.loginParticipant('sec@example.ua', 'WrongPass123!')).rejects.toThrow(
+      /Невірна електронна пошта або пароль/i,
+    );
+
+    // Підміна ACTIVE_SESSION_KEY вигаданим id не проходить перевірку акаунтів
+    storage.setItem(
+      'cashback_radar_active_session_v1',
+      JSON.stringify({ ...user, id: 'forged-user-id' }),
+    );
+    expect(await service.getCurrentSession()).toBeNull();
+  });
+
+  it('валідує межі вхідних даних та ізолює демо-режим', async () => {
+    const storage = createInMemoryStorage();
+    const service = createAuthAndDataService({ storage, useCloud: false });
+
+    await expect(service.registerParticipant('short@example.ua', '1234567', 'Short')).rejects.toThrow(
+      /щонайменше 8/i,
+    );
+
+    const user = await service.registerParticipant('valid@example.ua', 'ValidPass2026!', 'Валід');
+
+    await expect(
+      service.addUserCard(user.id, {
+        bankId: 'unknown-bank' as never,
+        cardName: 'Test',
+        taxPercent: 23,
+      }),
+    ).rejects.toThrow(/невідомий банк/i);
+
+    const card = await service.addUserCard(user.id, {
+      bankId: 'monobank',
+      cardName: 'Чорна картка',
+      taxPercent: 23,
+    });
+
+    await expect(
+      service.upsertCashbackRule(user.id, {
+        cardId: card.id,
+        monthYear: '2026-13',
+        ruleType: 'CATEGORY',
+        categoryId: 'groceries',
+        rateOwnFunds: 2,
+        rateCreditFunds: 1,
+      }),
+    ).rejects.toThrow(/формат місяця/i);
+
+    await expect(
+      service.submitChangeSuggestion(user.id, {
+        suggestionType: 'NEW_MERCHANT',
+        targetName: 'Магазин',
+        proposedMcc: 12345,
+        details: 'Опис',
+      }),
+    ).rejects.toThrow(/MCC-код/i);
+
+    await service.logoutParticipant();
+    const demoUser = await service.loginWithDemoAccount('2026-11');
+    expect(demoUser.email).toBe('demo@cashbackradar.ua');
+    const demoWallet = await service.loadUserWallet(demoUser.id);
+    expect(demoWallet.cards.length).toBe(4);
+  });
+
+  it('стійка до пошкоджених JSON-даних у локальному сховищі', async () => {
+    const storage = createInMemoryStorage();
+    storage.setItem('cashback_radar_local_accounts_v1', '{"not":"array"}');
+    storage.setItem('cashback_radar_active_session_v1', '{broken-json');
+
+    const service = createAuthAndDataService({ storage, useCloud: false });
+    expect(await service.getCurrentSession()).toBeNull();
+
+    const user = await service.registerParticipant('clean@example.ua', 'CleanPass2026!', 'Clean');
+    storage.setItem(`cashback_radar_wallet_v1_${user.id}`, '{"cards":null,"rules":"bad"}');
+    const wallet = await service.loadUserWallet(user.id);
+    expect(wallet.cards).toEqual([]);
+    expect(wallet.rules).toEqual([]);
+  });
+
+  it('відхиляє небезпечну конфігурацію Supabase (HTTP або service_role/secret ключ)', () => {
+    const toBase64Url = (obj: object) =>
+      btoa(JSON.stringify(obj)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+    const anonPayload = toBase64Url({ role: 'anon' });
+    const servicePayload = toBase64Url({ role: 'service_role' });
+    const fakeHeader = toBase64Url({ alg: 'HS256' });
+
+    expect(
+      isValidSupabaseClientConfig('https://abc.supabase.co', `${fakeHeader}.${anonPayload}.sig`),
+    ).toBe(true);
+    expect(
+      isValidSupabaseClientConfig('http://abc.supabase.co', `${fakeHeader}.${anonPayload}.sig`),
+    ).toBe(false);
+    expect(
+      isValidSupabaseClientConfig('https://abc.supabase.co', `${fakeHeader}.${servicePayload}.sig`),
+    ).toBe(false);
+    expect(
+      isValidSupabaseClientConfig('https://abc.supabase.co', 'sb_secret_example_not_for_client'),
+    ).toBe(false);
   });
 });

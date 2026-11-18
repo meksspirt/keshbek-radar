@@ -233,6 +233,7 @@ export function RadarView({
             <input
               id="radar-search"
               type="text"
+              maxLength={120}
               value={queryText}
               onFocus={() => setShowDropdown(true)}
               onChange={(e) => {
@@ -337,6 +338,7 @@ export function RadarView({
               id="radar-amount"
               type="text"
               inputMode="decimal"
+              maxLength={16}
               value={amountInput}
               onChange={(e) => setAmountInput(e.target.value)}
               placeholder="1000"

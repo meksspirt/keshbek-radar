@@ -218,6 +218,8 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
                     <input
                       id="auth-name"
                       type="text"
+                      maxLength={80}
+                      autoComplete="name"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Наприклад: Олександр"
@@ -237,6 +239,8 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
                     id="auth-email"
                     type="email"
                     required
+                    maxLength={254}
+                    autoComplete="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
@@ -247,7 +251,7 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
 
               <div className="space-y-1.5">
                 <label className="block text-xs font-medium text-zinc-300" htmlFor="auth-password">
-                  Пароль (мін. 6 символів)
+                  Пароль (мін. 8 символів)
                 </label>
                 <div className="relative">
                   <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" strokeWidth={1.75} />
@@ -255,7 +259,9 @@ export function AuthScreen({ onAuthenticated }: AuthScreenProps) {
                     id="auth-password"
                     type="password"
                     required
-                    minLength={6}
+                    minLength={8}
+                    maxLength={128}
+                    autoComplete={mode === 'register' ? 'new-password' : 'current-password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"

@@ -1,4 +1,4 @@
-import { MERCHANT_BY_ID } from '../data/ukrainianCatalog';
+import { BANK_BY_ID, CATEGORY_BY_ID, MERCHANT_BY_ID } from '../data/ukrainianCatalog';
 import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
 import type {
   BankId,
@@ -25,6 +25,7 @@ interface StoredLocalAccount {
   preferredTaxMode: TaxMode;
   salt: string;
   passwordHash: string;
+  isDemo?: boolean;
   createdAt: string;
 }
 
@@ -39,6 +40,26 @@ const WALLET_KEY_PREFIX = 'cashback_radar_wallet_v1_';
 const SUGGESTIONS_KEY_PREFIX = 'cashback_radar_suggestions_v1_';
 
 const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const MONTH_YEAR_REGEX = /^\d{4}-(0[1-9]|1[0-2])$/;
+const EMAIL_REGEX = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
+
+const MIN_PASSWORD_LENGTH = 8;
+const MAX_PASSWORD_LENGTH = 128;
+const MAX_EMAIL_LENGTH = 254;
+const MAX_DISPLAY_NAME_LENGTH = 80;
+const MAX_CARD_NAME_LENGTH = 120;
+const MAX_PARTNER_NAME_LENGTH = 120;
+const MAX_SUGGESTION_TARGET_LENGTH = 200;
+const MAX_SUGGESTION_DETAILS_LENGTH = 2000;
+const PBKDF2_ITERATIONS = 600_000;
+
+const ALLOWED_RULE_TYPES = new Set<RuleType>(['CATEGORY', 'MERCHANT', 'ALL']);
+const ALLOWED_SUGGESTION_TYPES = new Set<SuggestionType>([
+  'NEW_MERCHANT',
+  'FIX_MCC_CATEGORY',
+  'BANK_UPDATE',
+  'OTHER',
+]);
 
 export function getCurrentMonthYear(date: Date = new Date()): string {
   const year = date.getFullYear();
@@ -70,34 +91,69 @@ function getDefaultStorage(): StorageLike {
   return createMemoryStorage();
 }
 
+function getRandomBytes(length: number): Uint8Array {
+  if (typeof globalThis.crypto?.getRandomValues !== 'function') {
+    throw new Error('Криптографічний генератор випадкових чисел недоступний у цьому середовищі.');
+  }
+  const bytes = new Uint8Array(length);
+  globalThis.crypto.getRandomValues(bytes);
+  return bytes;
+}
+
+function bytesToHex(bytes: Uint8Array): string {
+  return Array.from(bytes)
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 function generateId(): string {
   if (typeof globalThis.crypto?.randomUUID === 'function') {
     return globalThis.crypto.randomUUID();
   }
-  // Фолбек формату UUID v4
-  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
-    const r = (Math.random() * 16) | 0;
-    const v = c === 'x' ? r : (r & 0x3) | 0x8;
-    return v.toString(16);
-  });
+  // CSPRNG фолбек формату UUID v4 (ASVS V11.5)
+  const bytes = getRandomBytes(16);
+  bytes[6] = (bytes[6] & 0x0f) | 0x40;
+  bytes[8] = (bytes[8] & 0x3f) | 0x80;
+  const hex = bytesToHex(bytes);
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
+}
+
+function constantTimeEqual(a: string, b: string): boolean {
+  const maxLen = Math.max(a.length, b.length);
+  let diff = a.length ^ b.length;
+  for (let i = 0; i < maxLen; i++) {
+    const codeA = i < a.length ? a.charCodeAt(i) : 0;
+    const codeB = i < b.length ? b.charCodeAt(i) : 0;
+    diff |= codeA ^ codeB;
+  }
+  return diff === 0;
 }
 
 async function hashPassword(password: string, salt: string): Promise<string> {
-  const input = `${salt}:${password}`;
-  if (typeof globalThis.crypto?.subtle?.digest === 'function') {
-    const encoded = new TextEncoder().encode(input);
-    const buffer = await globalThis.crypto.subtle.digest('SHA-256', encoded);
-    return Array.from(new Uint8Array(buffer))
-      .map((b) => b.toString(16).padStart(2, '0'))
-      .join('');
+  // ASVS V6.2 / V11.4: PBKDF2-HMAC-SHA256 з 600 000 ітерацій (без деградації до некриптографічних хешів)
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle || typeof subtle.importKey !== 'function' || typeof subtle.deriveBits !== 'function') {
+    throw new Error('WebCrypto API недоступний для безпечного хешування пароля.');
   }
-  // Детермінований фолбек лише для середовищ без WebCrypto
-  let hash = 2166136261;
-  for (let i = 0; i < input.length; i++) {
-    hash ^= input.charCodeAt(i);
-    hash = Math.imul(hash, 16777619);
-  }
-  return (hash >>> 0).toString(16);
+  const encoder = new TextEncoder();
+  const keyMaterial = await subtle.importKey(
+    'raw',
+    encoder.encode(password),
+    'PBKDF2',
+    false,
+    ['deriveBits'],
+  );
+  const derivedBits = await subtle.deriveBits(
+    {
+      name: 'PBKDF2',
+      salt: encoder.encode(salt),
+      iterations: PBKDF2_ITERATIONS,
+      hash: 'SHA-256',
+    },
+    keyMaterial,
+    256,
+  );
+  return `pbkdf2_sha256$${PBKDF2_ITERATIONS}$${bytesToHex(new Uint8Array(derivedBits))}`;
 }
 
 function toParticipantUser(acc: StoredLocalAccount): ParticipantUser {
@@ -114,7 +170,8 @@ function readJson<T>(storage: StorageLike, key: string, fallback: T): T {
   const raw = storage.getItem(key);
   if (!raw) return fallback;
   try {
-    return JSON.parse(raw) as T;
+    const parsed = JSON.parse(raw);
+    return parsed === null || parsed === undefined ? fallback : (parsed as T);
   } catch {
     return fallback;
   }
@@ -130,11 +187,14 @@ function normalizeEmail(email: string): string {
 
 function assertValidCredentials(email: string, password: string): string {
   const cleanEmail = normalizeEmail(email);
-  if (!cleanEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail)) {
+  if (!cleanEmail || cleanEmail.length > MAX_EMAIL_LENGTH || !EMAIL_REGEX.test(cleanEmail)) {
     throw new Error('Вкажіть коректну електронну пошту.');
   }
-  if (!password || password.length < 6) {
-    throw new Error('Пароль має містити щонайменше 6 символів.');
+  if (!password || password.length < MIN_PASSWORD_LENGTH) {
+    throw new Error(`Пароль має містити щонайменше ${MIN_PASSWORD_LENGTH} символів.`);
+  }
+  if (password.length > MAX_PASSWORD_LENGTH) {
+    throw new Error(`Пароль не може перевищувати ${MAX_PASSWORD_LENGTH} символів.`);
   }
   return cleanEmail;
 }
@@ -175,7 +235,17 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
   const useCloud = options.useCloud ?? isSupabaseConfigured;
 
   function getLocalAccounts(): StoredLocalAccount[] {
-    return readJson<StoredLocalAccount[]>(storage, ACCOUNTS_KEY, []);
+    const raw = readJson<unknown>(storage, ACCOUNTS_KEY, []);
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(
+      (item): item is StoredLocalAccount =>
+        Boolean(item) &&
+        typeof item === 'object' &&
+        typeof (item as StoredLocalAccount).id === 'string' &&
+        typeof (item as StoredLocalAccount).email === 'string' &&
+        typeof (item as StoredLocalAccount).salt === 'string' &&
+        typeof (item as StoredLocalAccount).passwordHash === 'string',
+    );
   }
 
   function saveLocalAccounts(accounts: StoredLocalAccount[]): void {
@@ -183,7 +253,16 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
   }
 
   function getLocalSessionUser(): ParticipantUser | null {
-    return readJson<ParticipantUser | null>(storage, ACTIVE_SESSION_KEY, null);
+    const raw = readJson<unknown>(storage, ACTIVE_SESSION_KEY, null);
+    if (!raw || typeof raw !== 'object') return null;
+    const candidate = raw as Partial<ParticipantUser>;
+    if (typeof candidate.id !== 'string' || typeof candidate.email !== 'string') {
+      return null;
+    }
+    const matched = getLocalAccounts().find(
+      (acc) => acc.id === candidate.id && acc.email === candidate.email,
+    );
+    return matched ? toParticipantUser(matched) : null;
   }
 
   function setLocalSessionUser(user: ParticipantUser | null): void {
@@ -202,14 +281,25 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
     return `${SUGGESTIONS_KEY_PREFIX}${userId}`;
   }
 
+  function clearUserLocalCache(userId: string): void {
+    storage.removeItem(getWalletKey(userId));
+    storage.removeItem(getSuggestionsKey(userId));
+  }
+
   function readLocalWallet(userId: string): StoredWalletPayload {
-    const raw = readJson<StoredWalletPayload>(storage, getWalletKey(userId), {
+    const raw = readJson<unknown>(storage, getWalletKey(userId), {
       cards: [],
       rules: [],
     });
+    if (!raw || typeof raw !== 'object') {
+      return { cards: [], rules: [] };
+    }
+    const obj = raw as Partial<StoredWalletPayload>;
+    const cards = Array.isArray(obj.cards) ? obj.cards : [];
+    const rules = Array.isArray(obj.rules) ? obj.rules : [];
     return {
-      cards: raw.cards.filter((c) => c.userId === userId),
-      rules: raw.rules.filter((r) => r.userId === userId),
+      cards: cards.filter((c) => Boolean(c) && typeof c === 'object' && c.userId === userId),
+      rules: rules.filter((r) => Boolean(r) && typeof r === 'object' && r.userId === userId),
     };
   }
 
@@ -221,8 +311,11 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
   }
 
   function readLocalSuggestions(userId: string): ChangeSuggestion[] {
-    return readJson<ChangeSuggestion[]>(storage, getSuggestionsKey(userId), []).filter(
-      (s) => s.userId === userId,
+    const raw = readJson<unknown>(storage, getSuggestionsKey(userId), []);
+    if (!Array.isArray(raw)) return [];
+    return raw.filter(
+      (s): s is ChangeSuggestion =>
+        Boolean(s) && typeof s === 'object' && (s as ChangeSuggestion).userId === userId,
     );
   }
 
@@ -248,9 +341,10 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
   async function getCurrentSession(): Promise<ParticipantUser | null> {
     const supabase = useCloud ? getSupabaseClient() : null;
     if (supabase) {
+      // У хмарному режимі не покладаємось на ACTIVE_SESSION_KEY у localStorage
+      setLocalSessionUser(null);
       const { data, error } = await supabase.auth.getUser();
       if (error || !data.user) {
-        setLocalSessionUser(null);
         return null;
       }
       const user = data.user;
@@ -260,7 +354,7 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
         .eq('id', user.id)
         .maybeSingle();
 
-      const participant: ParticipantUser = {
+      return {
         id: user.id,
         email: user.email ?? '',
         displayName:
@@ -270,8 +364,6 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
         preferredTaxMode: profile?.preferred_tax_mode === 'GROSS' ? 'GROSS' : 'NET',
         createdAt: user.created_at,
       };
-      setLocalSessionUser(participant);
-      return participant;
     }
 
     return getLocalSessionUser();
@@ -283,7 +375,8 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
     displayName: string,
   ): Promise<ParticipantUser> {
     const cleanEmail = assertValidCredentials(email, password);
-    const cleanName = displayName.trim() || cleanEmail.split('@')[0];
+    const cleanName =
+      (displayName.trim() || cleanEmail.split('@')[0]).slice(0, MAX_DISPLAY_NAME_LENGTH);
 
     const supabase = useCloud ? getSupabaseClient() : null;
     if (supabase) {
@@ -297,7 +390,7 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
         },
       });
       if (error) {
-        throw new Error(error.message);
+        throw new Error('Не вдалося завершити реєстрацію. Перевірте дані або спробуйте увійти.');
       }
       if (!data.user) {
         throw new Error('Не вдалося завершити реєстрацію. Спробуйте ще раз.');
@@ -308,30 +401,37 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
         );
       }
 
-      await supabase.from('profiles').upsert({
-        id: data.user.id,
-        email: cleanEmail,
-        display_name: cleanName,
-        preferred_tax_mode: 'NET',
-      });
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert(
+          {
+            id: data.user.id,
+            email: cleanEmail,
+            display_name: cleanName,
+            preferred_tax_mode: 'NET',
+          },
+          { onConflict: 'id', ignoreDuplicates: true },
+        );
 
-      const participant: ParticipantUser = {
+      if (profileError) {
+        throw new Error('Не вдалося ініціалізувати профіль учасника.');
+      }
+
+      return {
         id: data.user.id,
         email: cleanEmail,
         displayName: cleanName,
         preferredTaxMode: 'NET',
         createdAt: data.user.created_at,
       };
-      setLocalSessionUser(participant);
-      return participant;
     }
 
     const accounts = getLocalAccounts();
     if (accounts.some((acc) => acc.email === cleanEmail)) {
-      throw new Error('Учасник із такою електронною поштою вже зареєстрований.');
+      throw new Error('Не вдалося зареєструвати акаунт із цією електронною поштою.');
     }
 
-    const salt = generateId();
+    const salt = bytesToHex(getRandomBytes(16));
     const passwordHash = await hashPassword(password, salt);
     const newAccount: StoredLocalAccount = {
       id: generateId(),
@@ -359,7 +459,7 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
         password,
       });
       if (error || !data.user) {
-        throw new Error(error?.message || 'Невірна пошта або пароль.');
+        throw new Error('Невірна електронна пошта або пароль.');
       }
 
       const { data: profile } = await supabase
@@ -368,7 +468,7 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
         .eq('id', data.user.id)
         .maybeSingle();
 
-      const participant: ParticipantUser = {
+      return {
         id: data.user.id,
         email: data.user.email ?? cleanEmail,
         displayName:
@@ -378,8 +478,6 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
         preferredTaxMode: profile?.preferred_tax_mode === 'GROSS' ? 'GROSS' : 'NET',
         createdAt: data.user.created_at,
       };
-      setLocalSessionUser(participant);
-      return participant;
     }
 
     const accounts = getLocalAccounts();
@@ -389,7 +487,7 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
     }
 
     const candidateHash = await hashPassword(password, found.salt);
-    if (candidateHash !== found.passwordHash) {
+    if (!constantTimeEqual(candidateHash, found.passwordHash)) {
       throw new Error('Невірна електронна пошта або пароль.');
     }
 
@@ -399,17 +497,37 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
   }
 
   async function loginWithDemoAccount(monthYear: string = getCurrentMonthYear()): Promise<ParticipantUser> {
-    const demoEmail = 'demo@cashbackradar.ua';
-    const demoPass = 'DemoRadar2026!';
-    const accounts = getLocalAccounts();
-    const existing = accounts.find((acc) => acc.email === demoEmail);
-
-    let user: ParticipantUser;
-    if (existing) {
-      user = await loginParticipant(demoEmail, demoPass);
-    } else {
-      user = await registerParticipant(demoEmail, demoPass, 'Демо Учасник');
+    if (useCloud && getSupabaseClient() !== null) {
+      throw new Error('Демо-вхід доступний лише в локальному режимі.');
     }
+
+    const demoEmail = 'demo@cashbackradar.ua';
+    const accounts = getLocalAccounts();
+    let demoAccount = accounts.find((acc) => acc.email === demoEmail && acc.isDemo);
+
+    if (!demoAccount) {
+      const existingByEmail = accounts.find((acc) => acc.email === demoEmail);
+      if (existingByEmail) {
+        throw new Error('Демо-адреса зайнята локальним користувачем. Увійдіть за паролем.');
+      }
+      const salt = bytesToHex(getRandomBytes(16));
+      const randomSecret = bytesToHex(getRandomBytes(24));
+      const passwordHash = await hashPassword(randomSecret, salt);
+      demoAccount = {
+        id: generateId(),
+        email: demoEmail,
+        displayName: 'Демо Учасник',
+        preferredTaxMode: 'NET',
+        salt,
+        passwordHash,
+        isDemo: true,
+        createdAt: new Date().toISOString(),
+      };
+      saveLocalAccounts([...accounts, demoAccount]);
+    }
+
+    const user = toParticipantUser(demoAccount);
+    setLocalSessionUser(user);
 
     const wallet = await loadUserWallet(user.id);
     if (wallet.cards.length === 0) {
@@ -421,21 +539,35 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
   async function logoutParticipant(): Promise<void> {
     const supabase = useCloud ? getSupabaseClient() : null;
     if (supabase) {
+      try {
+        const { data } = await supabase.auth.getUser();
+        if (data.user?.id) {
+          clearUserLocalCache(data.user.id);
+        }
+      } catch {
+        // Ігноруємо помилки мережі під час виходу
+      }
       await supabase.auth.signOut();
     }
     setLocalSessionUser(null);
   }
 
   async function updateTaxModePreference(userId: string, taxMode: TaxMode): Promise<ParticipantUser> {
+    if (taxMode !== 'NET' && taxMode !== 'GROSS') {
+      throw new Error('Некоректний режим розрахунку податку.');
+    }
     const current = await assertAuthorizedUser(userId);
     const updated: ParticipantUser = { ...current, preferredTaxMode: taxMode };
 
     const supabase = useCloud ? getSupabaseClient() : null;
     if (supabase) {
-      await supabase
+      const { error } = await supabase
         .from('profiles')
         .update({ preferred_tax_mode: taxMode })
         .eq('id', userId);
+      if (error) {
+        throw new Error('Не вдалося оновити налаштування податку.');
+      }
     } else {
       const accounts = getLocalAccounts();
       saveLocalAccounts(
@@ -443,9 +575,9 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
           acc.id === userId ? { ...acc, preferredTaxMode: taxMode } : acc,
         ),
       );
+      setLocalSessionUser(updated);
     }
 
-    setLocalSessionUser(updated);
     return updated;
   }
 
@@ -513,11 +645,20 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
     return readLocalWallet(userId);
   }
 
+  function clampPercent(value: number): number {
+    const num = Number(value);
+    if (!Number.isFinite(num)) return 0;
+    return Math.min(100, Math.max(0, num));
+  }
+
   async function addUserCard(userId: string, input: AddUserCardInput): Promise<UserCard> {
     await assertAuthorizedUser(userId);
+    if (!BANK_BY_ID.has(input.bankId)) {
+      throw new Error('Обрано невідомий банк.');
+    }
     const cleanName = input.cardName.trim();
-    if (!cleanName) {
-      throw new Error('Вкажіть назву картки.');
+    if (!cleanName || cleanName.length > MAX_CARD_NAME_LENGTH) {
+      throw new Error(`Назва картки має містити від 1 до ${MAX_CARD_NAME_LENGTH} символів.`);
     }
 
     const card: UserCard = {
@@ -525,7 +666,7 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
       userId,
       bankId: input.bankId,
       cardName: cleanName,
-      taxPercent: Math.min(100, Math.max(0, Number(input.taxPercent) || 0)),
+      taxPercent: clampPercent(input.taxPercent),
       isActive: true,
       createdAt: new Date().toISOString(),
     };
@@ -574,13 +715,16 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
       throw new Error('Картку не знайдено або у вас немає прав доступу до неї.');
     }
 
+    const trimmedCardName = patch.cardName !== undefined ? patch.cardName.trim() : undefined;
+    if (trimmedCardName !== undefined && trimmedCardName.length > MAX_CARD_NAME_LENGTH) {
+      throw new Error(`Назва картки не може перевищувати ${MAX_CARD_NAME_LENGTH} символів.`);
+    }
+
     const updated: UserCard = {
       ...existing,
-      ...(patch.cardName !== undefined ? { cardName: patch.cardName.trim() || existing.cardName } : {}),
-      ...(patch.taxPercent !== undefined
-        ? { taxPercent: Math.min(100, Math.max(0, Number(patch.taxPercent) || 0)) }
-        : {}),
-      ...(patch.isActive !== undefined ? { isActive: patch.isActive } : {}),
+      ...(trimmedCardName ? { cardName: trimmedCardName } : {}),
+      ...(patch.taxPercent !== undefined ? { taxPercent: clampPercent(patch.taxPercent) } : {}),
+      ...(patch.isActive !== undefined ? { isActive: Boolean(patch.isActive) } : {}),
     };
 
     const supabase = useCloud ? getSupabaseClient() : null;
@@ -648,8 +792,23 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
       throw new Error('Доступ заборонено: картка не належить поточному учаснику.');
     }
 
-    const cleanOwn = Math.min(100, Math.max(0, Number(input.rateOwnFunds) || 0));
-    const cleanCredit = Math.min(100, Math.max(0, Number(input.rateCreditFunds) || 0));
+    if (!MONTH_YEAR_REGEX.test(input.monthYear)) {
+      throw new Error('Некоректний формат місяця (очікується YYYY-MM).');
+    }
+    if (!ALLOWED_RULE_TYPES.has(input.ruleType)) {
+      throw new Error('Некоректний тип правила кешбеку.');
+    }
+    if (input.categoryId !== undefined && !CATEGORY_BY_ID.has(input.categoryId)) {
+      throw new Error('Обрано невідому категорію кешбеку.');
+    }
+
+    const cleanPartnerName = input.customPartnerName?.trim() || undefined;
+    if (cleanPartnerName && cleanPartnerName.length > MAX_PARTNER_NAME_LENGTH) {
+      throw new Error(`Назва партнера не може перевищувати ${MAX_PARTNER_NAME_LENGTH} символів.`);
+    }
+
+    const cleanOwn = clampPercent(input.rateOwnFunds);
+    const cleanCredit = clampPercent(input.rateCreditFunds);
     const now = new Date().toISOString();
 
     const existingRule = current.rules.find((r) => {
@@ -661,8 +820,8 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
       if (input.ruleType === 'MERCHANT') {
         return (
           (input.merchantId && r.merchantId === input.merchantId) ||
-          (input.customPartnerName &&
-            r.customPartnerName?.toLowerCase() === input.customPartnerName.trim().toLowerCase())
+          (cleanPartnerName &&
+            r.customPartnerName?.toLowerCase() === cleanPartnerName.toLowerCase())
         );
       }
       return true;
@@ -676,7 +835,7 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
       ruleType: input.ruleType,
       categoryId: input.categoryId,
       merchantId: input.merchantId,
-      customPartnerName: input.customPartnerName?.trim() || undefined,
+      customPartnerName: cleanPartnerName,
       rateOwnFunds: cleanOwn,
       rateCreditFunds: cleanCredit,
       updatedAt: now,
@@ -746,6 +905,9 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
   }
 
   async function resetMonthRates(userId: string, monthYear: string): Promise<void> {
+    if (!MONTH_YEAR_REGEX.test(monthYear)) {
+      throw new Error('Некоректний формат місяця (очікується YYYY-MM).');
+    }
     await assertAuthorizedUser(userId);
     const current = readLocalWallet(userId);
     const now = new Date().toISOString();
@@ -892,11 +1054,30 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
     input: SubmitSuggestionInput,
   ): Promise<ChangeSuggestion> {
     const user = await assertAuthorizedUser(userId);
+    if (!ALLOWED_SUGGESTION_TYPES.has(input.suggestionType)) {
+      throw new Error('Некоректний тип пропозиції змін.');
+    }
+
     const cleanTarget = input.targetName.trim();
     const cleanDetails = input.details.trim();
 
     if (!cleanTarget || !cleanDetails) {
       throw new Error('Заповніть назву об’єкта та опис пропозиції змін.');
+    }
+    if (cleanTarget.length > MAX_SUGGESTION_TARGET_LENGTH) {
+      throw new Error(`Назва об’єкта не може перевищувати ${MAX_SUGGESTION_TARGET_LENGTH} символів.`);
+    }
+    if (cleanDetails.length > MAX_SUGGESTION_DETAILS_LENGTH) {
+      throw new Error(`Опис пропозиції не може перевищувати ${MAX_SUGGESTION_DETAILS_LENGTH} символів.`);
+    }
+    if (input.proposedCategoryId !== undefined && !CATEGORY_BY_ID.has(input.proposedCategoryId)) {
+      throw new Error('Обрано невідому категорію витрат.');
+    }
+    if (
+      input.proposedMcc !== undefined &&
+      (!Number.isInteger(input.proposedMcc) || input.proposedMcc < 0 || input.proposedMcc > 9999)
+    ) {
+      throw new Error('MCC-код має бути цілим числом від 0000 до 9999.');
     }
 
     const suggestion: ChangeSuggestion = {
