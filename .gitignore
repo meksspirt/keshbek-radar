@@ -1,0 +1,25 @@
+# Залежності та збірка
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+# Секрети та змінні середовища
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+
+# Capacitor / Android тимчасові файли
+android/app/build/
+android/.gradle/
+android/local.properties
+
+# Редактори, агенти та ОС
+.agents/
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,21 @@
+{
+  "name": "КешбекРадар Україна",
+  "short_name": "КешбекРадар",
+  "description": "Швидкий підбір найвигіднішої української банківської картки для поточної оплати з урахуванням власних та кредитних коштів і податків.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "lang": "uk",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
