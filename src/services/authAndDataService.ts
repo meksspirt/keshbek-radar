@@ -1,5 +1,10 @@
 import { BANK_BY_ID, CATEGORY_BY_ID, MERCHANT_BY_ID } from '../data/ukrainianCatalog';
-import { getSupabaseClient, isSupabaseConfigured } from './supabaseClient';
+import {
+  clearPendingPasswordRecovery,
+  getSupabaseClient,
+  isSupabaseConfigured,
+  subscribeToPasswordRecovery,
+} from './supabaseClient';
 import type {
   BankId,
   CashbackRule,
@@ -162,6 +167,7 @@ function toParticipantUser(acc: StoredLocalAccount): ParticipantUser {
     email: acc.email,
     displayName: acc.displayName,
     preferredTaxMode: acc.preferredTaxMode,
+    ...(acc.isDemo ? { isDemo: true } : {}),
     createdAt: acc.createdAt,
   };
 }
@@ -185,17 +191,26 @@ function normalizeEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-function assertValidCredentials(email: string, password: string): string {
+function assertValidEmail(email: string): string {
   const cleanEmail = normalizeEmail(email);
   if (!cleanEmail || cleanEmail.length > MAX_EMAIL_LENGTH || !EMAIL_REGEX.test(cleanEmail)) {
     throw new Error('Вкажіть коректну електронну пошту.');
   }
+  return cleanEmail;
+}
+
+function assertValidPassword(password: string, fieldLabel: string = 'Пароль'): void {
   if (!password || password.length < MIN_PASSWORD_LENGTH) {
-    throw new Error(`Пароль має містити щонайменше ${MIN_PASSWORD_LENGTH} символів.`);
+    throw new Error(`${fieldLabel} має містити щонайменше ${MIN_PASSWORD_LENGTH} символів.`);
   }
   if (password.length > MAX_PASSWORD_LENGTH) {
-    throw new Error(`Пароль не може перевищувати ${MAX_PASSWORD_LENGTH} символів.`);
+    throw new Error(`${fieldLabel} не може перевищувати ${MAX_PASSWORD_LENGTH} символів.`);
   }
+}
+
+function assertValidCredentials(email: string, password: string): string {
+  const cleanEmail = assertValidEmail(email);
+  assertValidPassword(password);
   return cleanEmail;
 }
 
@@ -550,6 +565,111 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
       await supabase.auth.signOut();
     }
     setLocalSessionUser(null);
+  }
+
+  async function requestPasswordReset(email: string, redirectTo?: string): Promise<void> {
+    const cleanEmail = assertValidEmail(email);
+
+    const supabase = useCloud ? getSupabaseClient() : null;
+    if (!supabase) {
+      throw new Error(
+        'Відновлення пароля через електронну пошту доступне лише у хмарному режимі (Supabase).',
+      );
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      cleanEmail,
+      redirectTo ? { redirectTo } : undefined,
+    );
+    if (error) {
+      if (error.status === 429 || /rate limit|too many/i.test(error.message)) {
+        throw new Error('Забагато запитів. Зачекайте кілька хвилин перед повторною спробою.');
+      }
+      throw new Error('Не вдалося надіслати лист для відновлення пароля. Спробуйте ще раз пізніше.');
+    }
+  }
+
+  async function changePassword(input: {
+    currentPassword?: string;
+    newPassword: string;
+    isRecovery?: boolean;
+  }): Promise<void> {
+    assertValidPassword(input.newPassword, 'Новий пароль');
+
+    const supabase = useCloud ? getSupabaseClient() : null;
+    if (supabase) {
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userData.user) {
+        throw new Error('Потрібна авторизація: увійдіть у свій кабінет учасника.');
+      }
+
+      if (!input.isRecovery) {
+        if (!input.currentPassword) {
+          throw new Error('Введіть поточний пароль.');
+        }
+        if (input.currentPassword === input.newPassword) {
+          throw new Error('Новий пароль має відрізнятися від поточного.');
+        }
+        if (userData.user.email) {
+          const { error: verifyErr } = await supabase.auth.signInWithPassword({
+            email: userData.user.email,
+            password: input.currentPassword,
+          });
+          if (verifyErr) {
+            throw new Error('Поточний пароль невірний.');
+          }
+        }
+      }
+
+      const { error: updateErr } = await supabase.auth.updateUser({
+        password: input.newPassword,
+      });
+      if (updateErr) {
+        if (/different from the old|same_password/i.test(updateErr.message)) {
+          throw new Error('Новий пароль має відрізнятися від поточного.');
+        }
+        if (/weak|password/i.test(updateErr.message) && /short|character|length/i.test(updateErr.message)) {
+          throw new Error(`Новий пароль має містити щонайменше ${MIN_PASSWORD_LENGTH} символів.`);
+        }
+        throw new Error('Не вдалося змінити пароль. Спробуйте ще раз.');
+      }
+      return;
+    }
+
+    const current = getLocalSessionUser();
+    if (!current) {
+      throw new Error('Потрібна авторизація: увійдіть у свій кабінет учасника.');
+    }
+
+    const accounts = getLocalAccounts();
+    const found = accounts.find((acc) => acc.id === current.id);
+    if (!found) {
+      throw new Error('Обліковий запис не знайдено.');
+    }
+    if (found.isDemo) {
+      throw new Error('Для демо-акаунта зміна пароля недоступна.');
+    }
+
+    if (!input.isRecovery) {
+      if (!input.currentPassword) {
+        throw new Error('Введіть поточний пароль.');
+      }
+      const candidateHash = await hashPassword(input.currentPassword, found.salt);
+      if (!constantTimeEqual(candidateHash, found.passwordHash)) {
+        throw new Error('Поточний пароль невірний.');
+      }
+      if (input.currentPassword === input.newPassword) {
+        throw new Error('Новий пароль має відрізнятися від поточного.');
+      }
+    }
+
+    const newSalt = bytesToHex(getRandomBytes(16));
+    const newHash = await hashPassword(input.newPassword, newSalt);
+    saveLocalAccounts(
+      accounts.map((acc) =>
+        acc.id === found.id ? { ...acc, salt: newSalt, passwordHash: newHash } : acc,
+      ),
+    );
   }
 
   async function updateTaxModePreference(userId: string, taxMode: TaxMode): Promise<ParticipantUser> {
@@ -1170,6 +1290,11 @@ export function createAuthAndDataService(options: AuthAndDataServiceOptions = {}
     loginParticipant,
     loginWithDemoAccount,
     logoutParticipant,
+    requestPasswordReset,
+    changePassword,
+    onPasswordRecovery: (listener: () => void) =>
+      useCloud && getSupabaseClient() !== null ? subscribeToPasswordRecovery(listener) : () => {},
+    clearPendingPasswordRecovery,
     updateTaxModePreference,
     loadUserWallet,
     addUserCard,

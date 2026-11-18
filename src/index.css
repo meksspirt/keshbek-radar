@@ -167,3 +167,12 @@
     outline: 2px solid Highlight;
   }
 }
+
+dialog:modal {
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  overflow: hidden;
+  overscroll-behavior: contain;
+}

@@ -231,4 +231,59 @@ describe('Multi-tenant ізоляція даних учасників та пр�
       isValidSupabaseClientConfig('https://abc.supabase.co', 'sb_secret_example_not_for_client'),
     ).toBe(false);
   });
+
+  it('дозволяє учаснику змінити пароль із перевіркою поточного пароля та блокує скидання в локальному режимі', async () => {
+    const storage = createInMemoryStorage();
+    const service = createAuthAndDataService({ storage, useCloud: false });
+
+    await expect(
+      service.changePassword({ currentPassword: 'OldPass123!', newPassword: 'NewPass456!' }),
+    ).rejects.toThrow(/авторизація/i);
+
+    await expect(service.requestPasswordReset('not-an-email')).rejects.toThrow(
+      /електронну пошту/i,
+    );
+    await expect(service.requestPasswordReset('user@example.ua')).rejects.toThrow(
+      /хмарному режимі/i,
+    );
+
+    const user = await service.registerParticipant(
+      'pwchange@example.ua',
+      'InitialPass1!',
+      'Користувач',
+    );
+    expect(user.isDemo).toBeUndefined();
+
+    await expect(
+      service.changePassword({ currentPassword: 'WrongPassword!', newPassword: 'UpdatedPass2!' }),
+    ).rejects.toThrow(/Поточний пароль невірний/i);
+
+    await expect(
+      service.changePassword({ currentPassword: 'InitialPass1!', newPassword: 'short' }),
+    ).rejects.toThrow(/щонайменше 8/i);
+
+    await expect(
+      service.changePassword({ currentPassword: 'InitialPass1!', newPassword: 'InitialPass1!' }),
+    ).rejects.toThrow(/відрізнятися/i);
+
+    await service.changePassword({
+      currentPassword: 'InitialPass1!',
+      newPassword: 'UpdatedPass2!',
+    });
+
+    await service.logoutParticipant();
+    await expect(
+      service.loginParticipant('pwchange@example.ua', 'InitialPass1!'),
+    ).rejects.toThrow(/Невірна електронна пошта або пароль/i);
+
+    const relogged = await service.loginParticipant('pwchange@example.ua', 'UpdatedPass2!');
+    expect(relogged.id).toBe(user.id);
+
+    await service.logoutParticipant();
+    const demoUser = await service.loginWithDemoAccount('2026-11');
+    expect(demoUser.isDemo).toBe(true);
+    await expect(
+      service.changePassword({ currentPassword: 'anything', newPassword: 'UpdatedPass2!' }),
+    ).rejects.toThrow(/демо-акаунта/i);
+  });
 });

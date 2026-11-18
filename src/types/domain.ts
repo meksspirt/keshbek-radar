@@ -176,5 +176,6 @@ export interface ParticipantUser {
   email: string;
   displayName: string;
   preferredTaxMode: TaxMode;
+  isDemo?: boolean;
   createdAt: string;
 }

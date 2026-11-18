@@ -67,6 +67,8 @@ export function isValidSupabaseClientConfig(url: string, key: string): boolean {
 export const isSupabaseConfigured = isValidSupabaseClientConfig(rawUrl, rawAnonKey);
 
 let clientInstance: SupabaseClient | null = null;
+let pendingPasswordRecovery = false;
+const recoveryListeners = new Set<() => void>();
 
 export function getSupabaseClient(): SupabaseClient | null {
   if (!isSupabaseConfigured) {
@@ -80,6 +82,26 @@ export function getSupabaseClient(): SupabaseClient | null {
         detectSessionInUrl: true,
       },
     });
+    clientInstance.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') {
+        pendingPasswordRecovery = true;
+        recoveryListeners.forEach((listener) => listener());
+      }
+    });
   }
   return clientInstance;
+}
+
+export function subscribeToPasswordRecovery(listener: () => void): () => void {
+  recoveryListeners.add(listener);
+  if (pendingPasswordRecovery) {
+    listener();
+  }
+  return () => {
+    recoveryListeners.delete(listener);
+  };
+}
+
+export function clearPendingPasswordRecovery(): void {
+  pendingPasswordRecovery = false;
 }

@@ -4,15 +4,16 @@ import {
   BookOpen,
   Compass,
   CreditCard,
+  KeyRound,
   LogOut,
   MessageSquarePlus,
   Percent,
   Radar,
   Sparkles,
-  User as UserIcon,
 } from 'lucide-react';
 import { AuthScreen } from './components/AuthScreen';
 import { CatalogView } from './components/CatalogView';
+import { ChangePasswordModal } from './components/ChangePasswordModal';
 import { ChangeSuggestionModal } from './components/ChangeSuggestionModal';
 import { RadarView } from './components/RadarView';
 import { WalletView } from './components/WalletView';
@@ -102,6 +103,11 @@ export function App() {
     categoryId?: CategoryId;
   }>({ isOpen: false });
 
+  const [passwordModal, setPasswordModal] = useState<{
+    isOpen: boolean;
+    isRecovery: boolean;
+  }>({ isOpen: false, isRecovery: false });
+
   const loadWalletForUser = useCallback(async (userId: string) => {
     setLoadingWallet(true);
     try {
@@ -115,6 +121,30 @@ export function App() {
 
   useEffect(() => {
     let mounted = true;
+    const unsubscribeRecovery = authAndDataService.onPasswordRecovery(() => {
+      if (!mounted) return;
+      authAndDataService.clearPendingPasswordRecovery();
+      setShowLanding(false);
+      setPasswordModal({ isOpen: true, isRecovery: true });
+      if (
+        typeof window !== 'undefined' &&
+        (window.location.hash.includes('access_token=') ||
+          window.location.hash.includes('type=recovery'))
+      ) {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search);
+      }
+      authAndDataService
+        .getCurrentSession()
+        .then((sessionUser) => {
+          if (!mounted || !sessionUser) return;
+          setUser(sessionUser);
+          return loadWalletForUser(sessionUser.id);
+        })
+        .catch(() => {
+          // Ігноруємо проміжні помилки оновлення сесії
+        });
+    });
+
     authAndDataService
       .getCurrentSession()
       .then((sessionUser) => {
@@ -130,6 +160,7 @@ export function App() {
 
     return () => {
       mounted = false;
+      unsubscribeRecovery();
     };
   }, [loadWalletForUser]);
 
@@ -165,6 +196,7 @@ export function App() {
     setCards([]);
     setRules([]);
     setSuggestionModal({ isOpen: false });
+    setPasswordModal({ isOpen: false, isRecovery: false });
   }
 
   async function handleChangeTaxMode(mode: TaxMode) {
@@ -375,12 +407,18 @@ export function App() {
               <span className="xl:hidden">Зміни</span>
             </button>
 
-            <div className="hidden lg:flex items-center gap-2 min-h-[42px] rounded-xl bg-zinc-900 border border-white/[0.08] px-3.5">
-              <UserIcon className="h-4 w-4 text-zinc-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-              <span className="text-sm font-medium text-zinc-200 max-w-[110px] truncate">
+            <button
+              type="button"
+              onClick={() => setPasswordModal({ isOpen: true, isRecovery: false })}
+              title="Змінити пароль"
+              aria-label="Профіль та зміна пароля"
+              className="min-h-[44px] min-w-[44px] sm:min-h-[42px] sm:min-w-[42px] lg:px-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 flex items-center justify-center gap-2 transition-colors cursor-pointer shrink-0"
+            >
+              <KeyRound className="h-4 w-4 text-emerald-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <span className="hidden lg:inline text-sm font-medium max-w-[110px] truncate">
                 {user.displayName}
               </span>
-            </div>
+            </button>
 
             <button
               type="button"
@@ -592,6 +630,14 @@ export function App() {
         initialType={suggestionModal.type}
         initialCategoryId={suggestionModal.categoryId}
         onClose={() => setSuggestionModal({ isOpen: false })}
+      />
+
+      {/* Модальне вікно зміни та відновлення пароля */}
+      <ChangePasswordModal
+        isOpen={passwordModal.isOpen}
+        user={user}
+        isRecovery={passwordModal.isRecovery}
+        onClose={() => setPasswordModal({ isOpen: false, isRecovery: false })}
       />
     </div>
   );

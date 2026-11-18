@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useRef, useState, type FormEvent } from 'react';
 import { Capacitor } from '@capacitor/core';
 import {
+  ArrowLeft,
   ArrowRight,
   Building2,
   Calculator,
   Check,
   ChevronRight,
   CreditCard,
+  Eye,
+  EyeOff,
   Layers,
   Lock,
   Mail,
@@ -236,11 +239,13 @@ export function AuthScreen({
   currentUser = null,
   onContinueToApp,
 }: AuthScreenProps) {
-  const [mode, setMode] = useState<'login' | 'register'>('login');
+  const [mode, setMode] = useState<'login' | 'register' | 'forgot'>('login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [displayName, setDisplayName] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -287,6 +292,19 @@ export function AuthScreen({
   const secondarySimRecs = simEvaluation.recommendations.slice(1, 4);
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ''));
+    const searchParams = new URLSearchParams(window.location.search);
+    const errorCode = hashParams.get('error_code') ?? searchParams.get('error_code');
+    const authError = hashParams.get('error') ?? searchParams.get('error');
+    if (errorCode === 'otp_expired' || authError === 'access_denied') {
+      setMode('forgot');
+      setError('Посилання для відновлення пароля застаріло або вже використане. Запросіть нове.');
+      window.history.replaceState(null, '', window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
     if (!mobileMenuOpen) return;
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === 'Escape') {
@@ -297,9 +315,14 @@ export function AuthScreen({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mobileMenuOpen]);
 
-  function scrollToAuth(targetMode: 'login' | 'register') {
-    setMode(targetMode);
+  function switchMode(nextMode: 'login' | 'register' | 'forgot') {
+    setMode(nextMode);
     setError(null);
+    setInfoMessage(null);
+  }
+
+  function scrollToAuth(targetMode: 'login' | 'register') {
+    switchMode(targetMode);
     setMobileMenuOpen(false);
     authPanelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     window.setTimeout(() => {
@@ -324,8 +347,23 @@ export function AuthScreen({
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setError(null);
+    setInfoMessage(null);
     setLoading(true);
     try {
+      if (mode === 'forgot') {
+        const redirectTo =
+          !Capacitor.isNativePlatform() &&
+          typeof window !== 'undefined' &&
+          window.location.protocol.startsWith('http')
+            ? window.location.origin
+            : undefined;
+        await authAndDataService.requestPasswordReset(email, redirectTo);
+        setInfoMessage(
+          'Якщо обліковий запис із цією поштою існує, ми надіслали лист із посиланням для відновлення пароля. Перевірте пошту та папку «Спам».',
+        );
+        return;
+      }
+
       const user =
         mode === 'register'
           ? await authAndDataService.registerParticipant(email, password, displayName)
@@ -405,43 +443,54 @@ export function AuthScreen({
           <>
             <div className="space-y-1">
               <h3 className="text-xl font-semibold text-zinc-50 tracking-tight">
-                {mode === 'login' ? 'Вхід у персональний кабінет' : 'Реєстрація учасника'}
+                {mode === 'login'
+                  ? 'Вхід у персональний кабінет'
+                  : mode === 'register'
+                    ? 'Реєстрація учасника'
+                    : 'Відновлення пароля'}
               </h3>
               <p className="text-xs text-zinc-400">
-                Ваші картки та щомісячні відсотки доступні лише вам
+                {mode === 'forgot'
+                  ? 'Вкажіть пошту вашого кабінету — надішлемо посилання для скидання пароля'
+                  : 'Ваші картки та щомісячні відсотки доступні лише вам'}
               </p>
             </div>
 
-            <div className="grid grid-cols-2 gap-1 rounded-xl bg-zinc-950 p-1 border border-zinc-800/90">
+            {mode === 'forgot' ? (
               <button
                 type="button"
-                onClick={() => {
-                  setMode('login');
-                  setError(null);
-                }}
-                className={`min-h-[42px] rounded-lg text-xs font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
-                  mode === 'login'
-                    ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                }`}
+                onClick={() => switchMode('login')}
+                className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
               >
-                Вхід у кабінет
+                <ArrowLeft className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                <span>Повернутися до входу</span>
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setMode('register');
-                  setError(null);
-                }}
-                className={`min-h-[42px] rounded-lg text-xs font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
-                  mode === 'register'
-                    ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                Реєстрація
-              </button>
-            </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-1 rounded-xl bg-zinc-950 p-1 border border-zinc-800/90">
+                <button
+                  type="button"
+                  onClick={() => switchMode('login')}
+                  className={`min-h-[42px] rounded-lg text-xs font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
+                    mode === 'login'
+                      ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  Вхід у кабінет
+                </button>
+                <button
+                  type="button"
+                  onClick={() => switchMode('register')}
+                  className={`min-h-[42px] rounded-lg text-xs font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
+                    mode === 'register'
+                      ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
+                      : 'text-zinc-400 hover:text-zinc-200'
+                  }`}
+                >
+                  Реєстрація
+                </button>
+              </div>
+            )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {mode === 'register' && (
@@ -454,20 +503,21 @@ export function AuthScreen({
                   </label>
                   <div className="relative">
                     <User
-                      className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+                      className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
                       strokeWidth={1.75}
                       aria-hidden="true"
                     />
                     <input
                       ref={nameInputRef}
                       id="auth-name"
+                      name="displayName"
                       type="text"
                       maxLength={80}
                       autoComplete="name"
                       value={displayName}
                       onChange={(e) => setDisplayName(e.target.value)}
                       placeholder="Олександр"
-                      className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                      className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-base sm:text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
                     />
                   </div>
                 </div>
@@ -482,58 +532,101 @@ export function AuthScreen({
                 </label>
                 <div className="relative">
                   <Mail
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+                    className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
                     strokeWidth={1.75}
                     aria-hidden="true"
                   />
                   <input
                     ref={emailInputRef}
                     id="auth-email"
+                    name="email"
                     type="email"
                     required
                     maxLength={254}
-                    autoComplete="email"
+                    autoComplete="username"
+                    spellCheck={false}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="name@example.com"
-                    className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                    className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-base sm:text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
                   />
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label
-                  className="block text-xs font-medium text-zinc-300"
-                  htmlFor="auth-password"
-                >
-                  Пароль (мін. 8 символів)
-                </label>
-                <div className="relative">
-                  <Lock
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
-                    strokeWidth={1.75}
-                    aria-hidden="true"
-                  />
-                  <input
-                    id="auth-password"
-                    type="password"
-                    required
-                    minLength={8}
-                    maxLength={128}
-                    autoComplete={
-                      mode === 'register' ? 'new-password' : 'current-password'
-                    }
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
-                  />
+              {mode !== 'forgot' && (
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <label
+                      className="block text-xs font-medium text-zinc-300"
+                      htmlFor="auth-password"
+                    >
+                      Пароль (мін. 8 символів)
+                    </label>
+                    {mode === 'login' && (
+                      <button
+                        type="button"
+                        data-compact-target
+                        onClick={() => switchMode('forgot')}
+                        className="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors cursor-pointer py-1"
+                      >
+                        Забули пароль?
+                      </button>
+                    )}
+                  </div>
+                  <div className="relative">
+                    <Lock
+                      className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+                      strokeWidth={1.75}
+                      aria-hidden="true"
+                    />
+                    <input
+                      id="auth-password"
+                      name="password"
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      minLength={8}
+                      maxLength={128}
+                      autoComplete={
+                        mode === 'register' ? 'new-password' : 'current-password'
+                      }
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••"
+                      className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-12 text-base sm:text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-pressed={showPassword}
+                      aria-label={showPassword ? 'Приховати пароль' : 'Показати пароль'}
+                      className="absolute right-1 top-1/2 -translate-y-1/2 min-h-[44px] min-w-[44px] rounded-lg flex items-center justify-center text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                      ) : (
+                        <Eye className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                      )}
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               {error && (
-                <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 px-3.5 py-2.5 text-xs text-rose-300 leading-relaxed">
+                <div
+                  role="alert"
+                  className="rounded-xl bg-rose-500/10 border border-rose-500/30 px-3.5 py-2.5 text-xs text-rose-300 leading-relaxed"
+                >
                   {error}
+                </div>
+              )}
+
+              {infoMessage && (
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-2.5 text-xs text-emerald-300 leading-relaxed"
+                >
+                  {infoMessage}
                 </div>
               )}
 
@@ -547,6 +640,11 @@ export function AuthScreen({
                     <>
                       <UserPlus className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                       <span>{loading ? 'Створюємо кабінет...' : 'Зареєструватися'}</span>
+                    </>
+                  ) : mode === 'forgot' ? (
+                    <>
+                      <Mail className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                      <span>{loading ? 'Надсилаємо лист...' : 'Надіслати посилання'}</span>
                     </>
                   ) : (
                     <span>{loading ? 'Виконується вхід...' : 'Увійти в кабінет'}</span>
