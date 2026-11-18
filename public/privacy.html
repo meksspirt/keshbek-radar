@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="uk">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#09090b" />
+    <title>Політика конфіденційності — КешбекРадар (CashbackRadar UA)</title>
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background-color: #09090b;
+        color: #e4e4e7;
+        line-height: 1.65;
+        -webkit-font-smoothing: antialiased;
+      }
+      .container {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 40px 20px 72px;
+      }
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding-bottom: 24px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        margin-bottom: 32px;
+      }
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        color: #f4f4f5;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+      }
+      .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+        color: #34d399;
+        background: rgba(16, 185, 129, 0.12);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+      h1 {
+        font-size: 28px;
+        line-height: 1.25;
+        color: #fafafa;
+        margin: 0 0 8px;
+        letter-spacing: -0.02em;
+      }
+      .updated {
+        font-size: 13px;
+        color: #a1a1aa;
+        margin: 0 0 28px;
+      }
+      .card {
+        background: #18181b;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 20px 24px;
+        margin-bottom: 16px;
+      }
+      h2 {
+        font-size: 17px;
+        color: #f4f4f5;
+        margin: 0 0 10px;
+      }
+      p {
+        margin: 0 0 10px;
+        font-size: 15px;
+        color: #d4d4d8;
+      }
+      p:last-child {
+        margin-bottom: 0;
+      }
+      ul {
+        margin: 8px 0 0;
+        padding-left: 20px;
+        color: #d4d4d8;
+        font-size: 15px;
+      }
+      li {
+        margin-bottom: 6px;
+      }
+      a {
+        color: #34d399;
+        text-decoration: none;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+      .lang-divider {
+        margin: 40px 0 28px;
+        border: 0;
+        border-top: 1px dashed rgba(255, 255, 255, 0.12);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <a class="brand" href="/">
+          <span>КешбекРадар</span>
+        </a>
+        <span class="badge">ua.cashbackradar.app</span>
+      </header>
+
+      <h1>Політика конфіденційності</h1>
+      <p class="updated">Останнє оновлення: листопад 2026 року</p>
+
+      <section class="card">
+        <h2>1. Загальні положення</h2>
+        <p>
+          Застосунок та вебсервіс <strong>«КешбекРадар»</strong> (<code>ua.cashbackradar.app</code>) є
+          персональним довідником і калькулятором вигідності кешбеку банківських карток України.
+        </p>
+        <p>
+          Сервіс не є банком, не надає платіжних або кредитних послуг, не підключається до банківських
+          рахунків і ніколи не запитує номери карток, CVV-коди, PIN-коди чи паролі від онлайн-банкінгу.
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>2. Які дані обробляються</h2>
+        <ul>
+          <li>
+            <strong>Локальний режим (за замовчуванням у мобільному застосунку):</strong> назва обраного банку,
+            назва картки та налаштовані вами відсотки кешбеку зберігаються виключно локально на вашому
+            пристрої (<code>localStorage</code>) і не передаються розробнику чи третім особам.
+          </li>
+          <li>
+            <strong>Хмарний режим (у разі ввімкнення синхронізації облікового запису):</strong> електронна
+            пошта, ім’я учасника та ваші налаштовані правила кешбеку зберігаються в захищеній базі даних
+            Supabase із шифруванням під час передавання (HTTPS/TLS) та ізоляцією доступу на рівні
+            Row Level Security (<code>auth.uid()</code>).
+          </li>
+        </ul>
+      </section>
+
+      <section class="card">
+        <h2>3. Передача даних третім особам та реклама</h2>
+        <p>
+          Ми не продаємо, не здаємо в оренду та не передаємо персональні дані користувачів третім особам.
+          У застосунку відсутня реклама та сторонні рекламні трекери (Advertising ID не використовується).
+        </p>
+      </section>
+
+      <section class="card">
+        <h2>4. Видалення акаунта та даних</h2>
+        <p>
+          Ви можете в будь-який момент видалити всі локальні дані через налаштування пристрою
+          («Очистити дані» застосунку) або видаливши картки в гаманці. Для видалення хмарного акаунта
+          та всіх пов’язаних із ним записів зверніться на електронну пошту:
+          <a href="mailto:support@cashbackradar.ua">support@cashbackradar.ua</a>.
+        </p>
+      </section>
+
+      <hr class="lang-divider" />
+
+      <h1>Privacy Policy (English Summary)</h1>
+      <p class="updated">Last updated: November 2026</p>
+
+      <section class="card">
+        <h2>Overview &amp; Data Handling</h2>
+        <p>
+          <strong>CashbackRadar UA</strong> (<code>ua.cashbackradar.app</code>) is a personal cashback
+          calculator and merchant MCC reference guide. It does not process payments, issue loans, or
+          collect bank card numbers, CVVs, PINs, or Open Banking credentials.
+        </p>
+        <p>
+          In the default offline/local mode, all card labels and cashback percentages are stored strictly
+          on the user's device and are never transmitted to any server. If optional cloud sync is enabled,
+          only the user's email, display name, and custom cashback rules are stored securely over HTTPS
+          with strict Row Level Security isolation. No ads or third-party ad trackers are used.
+        </p>
+        <p>
+          For data deletion requests or privacy inquiries, contact:
+          <a href="mailto:support@cashbackradar.ua">support@cashbackradar.ua</a>.
+        </p>
+      </section>
+    </main>
+  </body>
+</html>
