@@ -6,7 +6,11 @@
       "destination": "/privacy.html"
     },
     {
-      "source": "/((?!privacy(?:\\.html)?$).*)",
+      "source": "/delete-account",
+      "destination": "/delete-account.html"
+    },
+    {
+      "source": "/((?!(?:privacy|delete-account)(?:\\.html)?$).*)",
       "destination": "/index.html"
     }
   ],
