@@ -98,6 +98,8 @@ export function WalletView({
   const [savingRule, setSavingRule] = useState(false);
 
   const [confirmReset, setConfirmReset] = useState(false);
+  const [resettingMonth, setResettingMonth] = useState(false);
+  const [resetSuccessMsg, setResetSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const selectedBank = BANK_BY_ID.get(selectedBankId) ?? UA_BANKS[0];
@@ -198,20 +200,31 @@ export function WalletView({
               <div className="inline-flex items-center gap-1 rounded-xl bg-rose-500/10 border border-rose-500/30 p-1">
                 <button
                   type="button"
+                  disabled={resettingMonth}
                   onClick={() =>
                     void runSafeAction(async () => {
-                      await onResetMonthRates(monthYear);
-                      setConfirmReset(false);
+                      setResettingMonth(true);
+                      setResetSuccessMsg(null);
+                      try {
+                        await onResetMonthRates(monthYear);
+                        setConfirmReset(false);
+                        setResetSuccessMsg(
+                          `Усі ставки на ${formatMonthLabel(monthYear)} обнулено (0%).`,
+                        );
+                      } finally {
+                        setResettingMonth(false);
+                      }
                     }, 'Не вдалося обнулити ставки.')
                   }
-                  className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs font-medium cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-rose-500 hover:bg-rose-400 disabled:opacity-60 text-white text-xs font-medium cursor-pointer transition-colors"
                 >
-                  Підтвердити обнулення
+                  {resettingMonth ? 'Обнуляємо...' : 'Підтвердити обнулення'}
                 </button>
                 <button
                   type="button"
+                  disabled={resettingMonth}
                   onClick={() => setConfirmReset(false)}
-                  className="px-2.5 py-1.5 text-xs text-zinc-300 cursor-pointer"
+                  className="px-2.5 py-1.5 text-xs text-zinc-300 hover:text-zinc-100 disabled:opacity-50 cursor-pointer"
                 >
                   Скасувати
                 </button>
@@ -219,7 +232,10 @@ export function WalletView({
             ) : (
               <button
                 type="button"
-                onClick={() => setConfirmReset(true)}
+                onClick={() => {
+                  setResetSuccessMsg(null);
+                  setConfirmReset(true);
+                }}
                 className="min-h-[42px] px-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-medium text-zinc-300 inline-flex items-center gap-1.5 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer"
               >
                 <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} />
@@ -238,6 +254,23 @@ export function WalletView({
           </button>
         </div>
       </section>
+
+      {resetSuccessMsg && (
+        <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 px-4 py-3 text-xs text-emerald-300 flex items-center justify-between gap-3">
+          <span className="inline-flex items-center gap-2">
+            <Check className="h-4 w-4 shrink-0" strokeWidth={2} />
+            <span>{resetSuccessMsg}</span>
+          </span>
+          <button
+            type="button"
+            onClick={() => setResetSuccessMsg(null)}
+            aria-label="Закрити сповіщення"
+            className="text-emerald-300/80 hover:text-emerald-200 cursor-pointer"
+          >
+            <X className="h-3.5 w-3.5" strokeWidth={1.75} />
+          </button>
+        </div>
+      )}
 
       {errorMsg && (
         <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 px-4 py-3 text-xs text-rose-300">

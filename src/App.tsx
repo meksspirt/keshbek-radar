@@ -279,8 +279,8 @@ export function App() {
 
       {/* Флагманський верхній хедер кабінету */}
       <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-xl border-b border-white/[0.07]">
-        <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 shrink-0">
+        <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] gap-3">
+          <div className="flex items-center gap-2.5 shrink-0 md:justify-self-start">
             <div className="h-9 w-9 rounded-xl bg-zinc-900 border border-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center shrink-0">
               <Radar className="h-4.5 w-4.5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
             </div>
@@ -296,10 +296,10 @@ export function App() {
             </div>
           </div>
 
-          {/* Навігація для десктопу */}
+          {/* Навігація для десктопу (строго по центру) */}
           <nav
             aria-label="Навігація кабінету"
-            className="hidden md:flex items-center gap-1 rounded-full bg-zinc-900/90 p-1 border border-white/[0.08]"
+            className="hidden md:flex items-center gap-1 rounded-full bg-zinc-900/90 p-1 border border-white/[0.08] md:justify-self-center whitespace-nowrap"
           >
             <button
               type="button"
@@ -351,58 +351,31 @@ export function App() {
             </button>
           </nav>
 
-          {/* Швидкі дії, податковий режим та профіль */}
-          <div className="flex items-center gap-2 shrink-0">
-            <div
-              role="group"
-              aria-label="Режим податку в шапці"
-              className="hidden lg:inline-flex items-center rounded-xl bg-zinc-900 p-0.5 border border-white/[0.08]"
-            >
-              <button
-                type="button"
-                onClick={() => handleChangeTaxMode('NET')}
-                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-colors cursor-pointer ${
-                  user.preferredTaxMode === 'NET'
-                    ? 'bg-zinc-800 text-emerald-300'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                -23%
-              </button>
-              <button
-                type="button"
-                onClick={() => handleChangeTaxMode('GROSS')}
-                className={`px-2.5 py-1.5 rounded-lg text-[11px] font-medium transition-colors cursor-pointer ${
-                  user.preferredTaxMode === 'GROSS'
-                    ? 'bg-zinc-800 text-zinc-100'
-                    : 'text-zinc-400 hover:text-zinc-200'
-                }`}
-              >
-                100%
-              </button>
-            </div>
-
+          {/* Швидкі дії та профіль */}
+          <div className="flex items-center gap-2 shrink-0 md:justify-self-end">
             <button
               type="button"
               onClick={() => setShowLanding(true)}
-              className="hidden md:inline-flex min-h-[38px] px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-300 hover:text-zinc-50 text-xs font-medium items-center gap-1.5 transition-colors cursor-pointer"
+              title="Про проєкт"
+              className="hidden md:inline-flex min-h-[38px] px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-300 hover:text-zinc-50 text-xs font-medium items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
             >
-              <Compass className="h-3.5 w-3.5 text-zinc-400" strokeWidth={1.75} aria-hidden="true" />
-              <span>Про проєкт</span>
+              <Compass className="h-3.5 w-3.5 text-zinc-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <span className="hidden lg:inline">Про проєкт</span>
             </button>
 
             <button
               type="button"
               onClick={() => setSuggestionModal({ isOpen: true })}
-              className="min-h-[38px] px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer"
+              title="Запропонувати зміни"
+              className="min-h-[38px] px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
             >
               <MessageSquarePlus className="h-3.5 w-3.5 text-emerald-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-              <span className="hidden sm:inline">Запропонувати зміни</span>
-              <span className="sm:hidden">Зміни</span>
+              <span className="hidden xl:inline">Запропонувати зміни</span>
+              <span className="xl:hidden">Зміни</span>
             </button>
 
-            <div className="hidden sm:flex items-center gap-2 rounded-xl bg-zinc-900 border border-white/[0.08] px-3 py-1.5">
-              <UserIcon className="h-3.5 w-3.5 text-zinc-400" strokeWidth={1.75} aria-hidden="true" />
+            <div className="hidden lg:flex items-center gap-2 min-h-[38px] rounded-xl bg-zinc-900 border border-white/[0.08] px-3">
+              <UserIcon className="h-3.5 w-3.5 text-zinc-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
               <span className="text-xs font-medium text-zinc-200 max-w-[110px] truncate">
                 {user.displayName}
               </span>
@@ -413,7 +386,7 @@ export function App() {
               onClick={handleLogout}
               title="Вийти з кабінету"
               aria-label="Вийти з кабінету"
-              className="min-h-[38px] min-w-[38px] rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-400 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer"
+              className="min-h-[38px] min-w-[38px] rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-400 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             >
               <LogOut className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
             </button>
