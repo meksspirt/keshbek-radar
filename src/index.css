@@ -7,12 +7,26 @@
     --sal: env(safe-area-inset-left, 0px);
     --sar: env(safe-area-inset-right, 0px);
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --target-size: 24px;
+
+    /* Fluid typography scale (rem bounds, max <= 2.5x min for WCAG 1.4.4 zoom) */
+    --text-display: clamp(1.875rem, 1.45rem + 2.1vw, 3.125rem);
+    --text-section: clamp(1.5rem, 1.25rem + 1.2vw, 2.25rem);
+    --text-card-title: clamp(1.25rem, 1.125rem + 0.5vw, 1.5rem);
+    --text-cashback: clamp(1.875rem, 1.55rem + 1.4vw, 2.5rem);
+  }
+
+  @media (pointer: coarse) {
+    :root {
+      --target-size: 44px;
+    }
   }
 
   html {
     font-family: 'Geist', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     scroll-behavior: smooth;
-    scroll-padding-top: 5.5rem;
+    scroll-padding-top: calc(4.75rem + var(--sat));
+    scroll-padding-bottom: calc(5.25rem + var(--sab));
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -22,8 +36,9 @@
   }
 
   body {
-    padding-top: var(--sat);
-    padding-bottom: var(--sab);
+    font-size: 1rem;
+    line-height: 1.5;
+    overflow-wrap: break-word;
     padding-left: var(--sal);
     padding-right: var(--sar);
     overscroll-behavior-y: none;
@@ -31,10 +46,37 @@
     color: #f4f4f5;
   }
 
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  img,
+  video {
+    max-inline-size: 100%;
+    block-size: auto;
+  }
+
+  :where(a, code) {
+    overflow-wrap: anywhere;
+  }
+
   code,
   pre,
   .font-mono {
     font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+}
+
+@media (pointer: coarse) {
+  :where(button:not([data-compact-target]), select, input:not([type="checkbox"], [type="radio"]), nav a) {
+    min-block-size: var(--target-size);
   }
 }
 
@@ -48,6 +90,26 @@
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
+}
+
+.text-display-fluid {
+  font-size: var(--text-display);
+  line-height: 1.08;
+}
+
+.text-section-fluid {
+  font-size: var(--text-section);
+  line-height: 1.15;
+}
+
+.text-card-title-fluid {
+  font-size: var(--text-card-title);
+  line-height: 1.25;
+}
+
+.text-cashback-fluid {
+  font-size: var(--text-cashback);
+  line-height: 1.05;
 }
 
 @keyframes radar-enter {

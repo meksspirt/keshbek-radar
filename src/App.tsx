@@ -278,15 +278,15 @@ export function App() {
       </a>
 
       {/* Флагманський верхній хедер кабінету */}
-      <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-xl border-b border-white/[0.07]">
-        <div className="mx-auto max-w-6xl px-4 h-16 flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] gap-3">
+      <header className="sticky top-0 z-40 bg-zinc-950/90 backdrop-blur-xl border-b border-white/[0.07] pt-[var(--sat)]">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 min-h-16 py-2 flex items-center justify-between md:grid md:grid-cols-[1fr_auto_1fr] gap-3">
           <div className="flex items-center gap-2.5 shrink-0 md:justify-self-start">
-            <div className="h-9 w-9 rounded-xl bg-zinc-900 border border-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center shrink-0">
-              <Radar className="h-4.5 w-4.5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
+            <div className="h-10 w-10 rounded-xl bg-zinc-900 border border-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center shrink-0">
+              <Radar className="h-5 w-5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
             </div>
             <div>
-              <div className="text-sm font-semibold text-zinc-50 leading-tight">КешбекРадар</div>
-              <div className="text-[11px] font-mono text-zinc-400 flex items-center gap-1.5">
+              <div className="text-base font-semibold text-zinc-50 leading-tight">КешбекРадар</div>
+              <div className="text-xs font-mono text-zinc-400 flex items-center gap-1.5">
                 <span>{monthYear}</span>
                 <span aria-hidden="true">·</span>
                 <span className={cloudEnabled ? 'text-emerald-400' : 'text-zinc-400'}>
@@ -305,7 +305,7 @@ export function App() {
               type="button"
               onClick={() => setActiveTab('radar')}
               aria-current={activeTab === 'radar' ? 'page' : undefined}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+              className={`px-4 py-2 rounded-full text-sm font-medium inline-flex items-center gap-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 activeTab === 'radar'
                   ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
                   : 'text-zinc-400 hover:text-zinc-100'
@@ -314,14 +314,14 @@ export function App() {
               {activeTab === 'radar' && (
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
               )}
-              <Radar className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+              <Radar className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               <span>Радар вигоди</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('wallet')}
               aria-current={activeTab === 'wallet' ? 'page' : undefined}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+              className={`px-4 py-2 rounded-full text-sm font-medium inline-flex items-center gap-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 activeTab === 'wallet'
                   ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
                   : 'text-zinc-400 hover:text-zinc-100'
@@ -330,14 +330,14 @@ export function App() {
               {activeTab === 'wallet' && (
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
               )}
-              <CreditCard className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+              <CreditCard className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               <span>Мої картки ({cards.length})</span>
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('catalog')}
               aria-current={activeTab === 'catalog' ? 'page' : undefined}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+              className={`px-4 py-2 rounded-full text-sm font-medium inline-flex items-center gap-2 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                 activeTab === 'catalog'
                   ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
                   : 'text-zinc-400 hover:text-zinc-100'
@@ -346,7 +346,7 @@ export function App() {
               {activeTab === 'catalog' && (
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
               )}
-              <BookOpen className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+              <BookOpen className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
               <span>Довідник України</span>
             </button>
           </nav>
@@ -357,9 +357,9 @@ export function App() {
               type="button"
               onClick={() => setShowLanding(true)}
               title="Про проєкт"
-              className="hidden md:inline-flex min-h-[38px] px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-300 hover:text-zinc-50 text-xs font-medium items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
+              className="hidden md:inline-flex min-h-[42px] px-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-300 hover:text-zinc-50 text-sm font-medium items-center gap-1.5 transition-colors cursor-pointer whitespace-nowrap"
             >
-              <Compass className="h-3.5 w-3.5 text-zinc-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <Compass className="h-4 w-4 text-zinc-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
               <span className="hidden lg:inline">Про проєкт</span>
             </button>
 
@@ -367,16 +367,16 @@ export function App() {
               type="button"
               onClick={() => setSuggestionModal({ isOpen: true })}
               title="Запропонувати зміни"
-              className="min-h-[38px] px-3 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-xs font-medium inline-flex items-center gap-1.5 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
+              className="min-h-[44px] sm:min-h-[42px] px-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-sm font-medium inline-flex items-center gap-1.5 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer whitespace-nowrap"
             >
-              <MessageSquarePlus className="h-3.5 w-3.5 text-emerald-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <MessageSquarePlus className="h-4 w-4 text-emerald-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
               <span className="hidden xl:inline">Запропонувати зміни</span>
               <span className="xl:hidden">Зміни</span>
             </button>
 
-            <div className="hidden lg:flex items-center gap-2 min-h-[38px] rounded-xl bg-zinc-900 border border-white/[0.08] px-3">
-              <UserIcon className="h-3.5 w-3.5 text-zinc-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
-              <span className="text-xs font-medium text-zinc-200 max-w-[110px] truncate">
+            <div className="hidden lg:flex items-center gap-2 min-h-[42px] rounded-xl bg-zinc-900 border border-white/[0.08] px-3.5">
+              <UserIcon className="h-4 w-4 text-zinc-400 shrink-0" strokeWidth={1.75} aria-hidden="true" />
+              <span className="text-sm font-medium text-zinc-200 max-w-[110px] truncate">
                 {user.displayName}
               </span>
             </div>
@@ -386,16 +386,16 @@ export function App() {
               onClick={handleLogout}
               title="Вийти з кабінету"
               aria-label="Вийти з кабінету"
-              className="min-h-[38px] min-w-[38px] rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-400 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+              className="min-h-[44px] min-w-[44px] sm:min-h-[42px] sm:min-w-[42px] rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-400 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer shrink-0"
             >
-              <LogOut className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+              <LogOut className="h-4.5 w-4.5" strokeWidth={1.75} aria-hidden="true" />
             </button>
           </div>
         </div>
       </header>
 
       {/* Основний контент */}
-      <main id="app-main-content" className="flex-1 mx-auto w-full max-w-6xl px-4 pt-5 pb-24 md:pb-12 space-y-5">
+      <main id="app-main-content" className="flex-1 mx-auto w-full max-w-6xl px-4 sm:px-6 pt-5 pb-28 md:pb-12 space-y-5">
         {loadingWallet ? (
           <RadarSkeleton />
         ) : (
@@ -403,27 +403,27 @@ export function App() {
             {/* Панель зведення гаманця на поточний місяць показується у розділі гаманця, щоб Радар залишався максимально сфокусованим */}
             {activeTab === 'wallet' && (
               <section aria-label="Зведення гаманця на місяць" className="bezel-shell-sm">
-                <div className="bezel-core-sm px-4 py-3 grid grid-cols-2 lg:grid-cols-4 gap-3 items-center">
+                <div className="bezel-core-sm px-4 py-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 items-center">
                   <div className="rounded-xl px-2.5 py-1.5">
-                    <div className="text-[11px] text-zinc-400">Картки користувача</div>
-                    <div className="mt-0.5 flex items-baseline gap-1.5 font-mono tabular-nums">
-                      <span className="text-sm font-semibold text-zinc-50">
+                    <div className="text-xs text-zinc-400">Картки користувача</div>
+                    <div className="mt-1 flex items-baseline gap-1.5 font-mono tabular-nums">
+                      <span className="text-base font-semibold text-zinc-50">
                         {walletSummary.activeCardsCount} активних
                       </span>
-                      <span className="text-xs text-zinc-500">із {walletSummary.totalCardsCount}</span>
+                      <span className="text-sm text-zinc-400">із {walletSummary.totalCardsCount}</span>
                     </div>
                   </div>
 
                   <div className="rounded-xl px-2.5 py-1.5">
-                    <div className="text-[11px] text-zinc-400">
+                    <div className="text-xs text-zinc-400">
                       Правила · {formatMonthLabel(monthYear)}
                     </div>
-                    <div className="mt-0.5 flex items-baseline gap-2 font-mono tabular-nums">
-                      <span className="text-sm font-semibold text-zinc-50">
+                    <div className="mt-1 flex items-baseline gap-2 font-mono tabular-nums">
+                      <span className="text-base font-semibold text-zinc-50">
                         {walletSummary.activeRulesCount} правил
                       </span>
                       {walletSummary.maxRatePercent > 0 && (
-                        <span className="text-xs text-emerald-400">
+                        <span className="text-sm text-emerald-400">
                           до {formatPercent(walletSummary.maxRatePercent)}
                         </span>
                       )}
@@ -435,13 +435,13 @@ export function App() {
                     onClick={() =>
                       handleChangeTaxMode(user.preferredTaxMode === 'NET' ? 'GROSS' : 'NET')
                     }
-                    className="text-left rounded-xl px-2.5 py-1.5 hover:bg-white/[0.03] transition-colors cursor-pointer"
+                    className="text-left rounded-xl px-2.5 py-2 hover:bg-white/[0.03] transition-colors cursor-pointer min-h-[44px]"
                   >
-                    <div className="text-[11px] text-zinc-400 flex items-center gap-1">
-                      <Percent className="h-3 w-3 text-zinc-500" strokeWidth={1.75} aria-hidden="true" />
+                    <div className="text-xs text-zinc-400 flex items-center gap-1.5">
+                      <Percent className="h-3.5 w-3.5 text-zinc-400" strokeWidth={1.75} aria-hidden="true" />
                       <span>Режим кешбеку</span>
                     </div>
-                    <div className="mt-0.5 text-xs font-medium text-zinc-200 font-mono">
+                    <div className="mt-1 text-sm font-medium text-zinc-100 font-mono">
                       {user.preferredTaxMode === 'NET'
                         ? 'Чистий кешбек (-23%)'
                         : 'Брудний кешбек (100%)'}
@@ -454,18 +454,18 @@ export function App() {
                         type="button"
                         disabled={loadingDemoWallet}
                         onClick={handlePopulateDemoWallet}
-                        className="min-h-[36px] px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="w-full sm:w-auto min-h-[44px] px-4 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-sm font-medium inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
                       >
-                        <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        <Sparkles className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                         <span>{loadingDemoWallet ? 'Завантажуємо...' : 'Заповнити 4 картки'}</span>
                       </button>
                     ) : (
                       <button
                         type="button"
                         onClick={() => setActiveTab('radar')}
-                        className="min-h-[36px] px-3 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+                        className="w-full sm:w-auto min-h-[44px] px-4 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-medium inline-flex items-center justify-center gap-2 transition-colors cursor-pointer"
                       >
-                        <Radar className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                        <Radar className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                         <span>До Радару вигоди</span>
                       </button>
                     )}
@@ -525,19 +525,19 @@ export function App() {
       {/* Нижня мобільна навігація в Thumb Zone */}
       <nav
         aria-label="Мобільна навігація"
-        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-zinc-950/95 backdrop-blur-md border-t border-white/[0.08] pb-[env(safe-area-inset-bottom,0px)]"
+        className="md:hidden fixed bottom-0 inset-x-0 z-40 bg-zinc-950/95 backdrop-blur-md border-t border-white/[0.08] pt-1 pb-[max(0.5rem,env(safe-area-inset-bottom,0px))] pl-[max(0.5rem,env(safe-area-inset-left,0px))] pr-[max(0.5rem,env(safe-area-inset-right,0px))]"
       >
-        <div className="grid grid-cols-4 h-16">
+        <div className="grid grid-cols-4 min-h-14">
           <button
             type="button"
             onClick={() => setActiveTab('radar')}
             aria-current={activeTab === 'radar' ? 'page' : undefined}
-            className={`relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer ${
+            className={`relative min-h-[52px] flex flex-col items-center justify-center gap-1 text-xs font-medium transition-colors cursor-pointer ${
               activeTab === 'radar' ? 'text-emerald-400' : 'text-zinc-400'
             }`}
           >
             {activeTab === 'radar' && (
-              <span className="absolute top-0 h-0.5 w-6 rounded-full bg-emerald-400" aria-hidden="true" />
+              <span className="absolute top-0 h-0.5 w-7 rounded-full bg-emerald-400" aria-hidden="true" />
             )}
             <Radar className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
             <span>Радар</span>
@@ -546,12 +546,12 @@ export function App() {
             type="button"
             onClick={() => setActiveTab('wallet')}
             aria-current={activeTab === 'wallet' ? 'page' : undefined}
-            className={`relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer ${
+            className={`relative min-h-[52px] flex flex-col items-center justify-center gap-1 text-xs font-medium transition-colors cursor-pointer ${
               activeTab === 'wallet' ? 'text-emerald-400' : 'text-zinc-400'
             }`}
           >
             {activeTab === 'wallet' && (
-              <span className="absolute top-0 h-0.5 w-6 rounded-full bg-emerald-400" aria-hidden="true" />
+              <span className="absolute top-0 h-0.5 w-7 rounded-full bg-emerald-400" aria-hidden="true" />
             )}
             <CreditCard className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
             <span>Картки ({cards.length})</span>
@@ -560,12 +560,12 @@ export function App() {
             type="button"
             onClick={() => setActiveTab('catalog')}
             aria-current={activeTab === 'catalog' ? 'page' : undefined}
-            className={`relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer ${
+            className={`relative min-h-[52px] flex flex-col items-center justify-center gap-1 text-xs font-medium transition-colors cursor-pointer ${
               activeTab === 'catalog' ? 'text-emerald-400' : 'text-zinc-400'
             }`}
           >
             {activeTab === 'catalog' && (
-              <span className="absolute top-0 h-0.5 w-6 rounded-full bg-emerald-400" aria-hidden="true" />
+              <span className="absolute top-0 h-0.5 w-7 rounded-full bg-emerald-400" aria-hidden="true" />
             )}
             <BookOpen className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
             <span>Довідник</span>
@@ -573,7 +573,7 @@ export function App() {
           <button
             type="button"
             onClick={() => setShowLanding(true)}
-            className="relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+            className="relative min-h-[52px] flex flex-col items-center justify-center gap-1 text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
           >
             <Compass className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
             <span>Проєкт</span>

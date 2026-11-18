@@ -369,21 +369,21 @@ export function AuthScreen({
       </a>
 
       {/* Флагманська шапка навігації */}
-      <header className="sticky top-0 z-40 bg-zinc-950/85 backdrop-blur-xl border-b border-white/[0.07]">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-40 bg-zinc-950/85 backdrop-blur-xl border-b border-white/[0.07] pt-[var(--sat)]">
+        <div className="mx-auto max-w-6xl px-4 sm:px-6 min-h-16 py-2 flex items-center justify-between gap-4">
           <a
             href="#simulator"
             onClick={() => handleNavClick('simulator')}
             className="flex items-center gap-2.5 shrink-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           >
-            <span className="h-9 w-9 rounded-xl bg-zinc-900 border border-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center">
-              <Radar className="h-4.5 w-4.5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
+            <span className="h-10 w-10 rounded-xl bg-zinc-900 border border-white/[0.1] shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] flex items-center justify-center">
+              <Radar className="h-5 w-5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
             </span>
             <span className="flex flex-col">
-              <span className="text-sm font-semibold text-zinc-50 tracking-tight leading-tight">
+              <span className="text-base font-semibold text-zinc-50 tracking-tight leading-tight">
                 КешбекРадар
               </span>
-              <span className="text-[11px] font-mono text-zinc-400 flex items-center gap-1.5 leading-tight mt-0.5">
+              <span className="text-xs font-mono text-zinc-400 flex items-center gap-1.5 leading-tight mt-0.5">
                 <span>UA · {previewMonth}</span>
                 <span aria-hidden="true">·</span>
                 <span className={cloudEnabled ? 'text-emerald-400' : 'text-zinc-400'}>
@@ -403,7 +403,7 @@ export function AuthScreen({
                   href={`#${sec.id}`}
                   onClick={() => handleNavClick(sec.id)}
                   aria-current={isCurrent ? 'page' : undefined}
-                  className={`relative px-3.5 py-1.5 rounded-full text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
+                  className={`relative px-4 py-2 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 ${
                     isCurrent
                       ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]'
                       : 'text-zinc-400 hover:text-zinc-100'
@@ -426,7 +426,7 @@ export function AuthScreen({
               <button
                 type="button"
                 onClick={onContinueToApp}
-                className="group min-h-[40px] pl-4 pr-1.5 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium inline-flex items-center gap-2.5 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                className="group min-h-[44px] sm:min-h-[42px] pl-4 pr-1.5 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs sm:text-sm font-medium inline-flex items-center gap-2.5 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
               >
                 <span>Повернутися в Радар</span>
                 <span className="h-7 w-7 rounded-full bg-zinc-950/10 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
@@ -440,9 +440,9 @@ export function AuthScreen({
                     type="button"
                     disabled={loading}
                     onClick={handleDemoLogin}
-                    className="hidden sm:inline-flex min-h-[40px] px-3.5 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-xs font-medium items-center gap-1.5 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                    className="hidden sm:inline-flex min-h-[42px] px-4 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-sm font-medium items-center gap-1.5 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                   >
-                    <Sparkles className="h-3.5 w-3.5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
+                    <Sparkles className="h-4 w-4 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
                     <span>Демо-вхід</span>
                   </button>
                 )}
@@ -450,7 +450,7 @@ export function AuthScreen({
                 <button
                   type="button"
                   onClick={() => scrollToAuth('login')}
-                  className="hidden sm:inline-flex min-h-[40px] px-3.5 rounded-full text-xs font-medium text-zinc-300 hover:text-zinc-50 transition-colors cursor-pointer items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                  className="hidden sm:inline-flex min-h-[42px] px-4 rounded-full text-sm font-medium text-zinc-300 hover:text-zinc-50 transition-colors cursor-pointer items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                 >
                   Увійти
                 </button>
@@ -458,7 +458,7 @@ export function AuthScreen({
                 <button
                   type="button"
                   onClick={() => scrollToAuth('register')}
-                  className="group min-h-[40px] pl-4 pr-1.5 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium inline-flex items-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                  className="group min-h-[44px] sm:min-h-[42px] pl-4 pr-1.5 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-medium inline-flex items-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                 >
                   <span>Реєстрація</span>
                   <span className="h-7 w-7 rounded-full bg-zinc-950/10 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
@@ -478,9 +478,9 @@ export function AuthScreen({
               className="lg:hidden min-h-[44px] min-w-[44px] rounded-xl bg-zinc-900 border border-white/[0.08] text-zinc-200 hover:bg-zinc-800 flex items-center justify-center transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
             >
               {mobileMenuOpen ? (
-                <X className="h-4.5 w-4.5" strokeWidth={1.75} aria-hidden="true" />
+                <X className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
               ) : (
-                <Menu className="h-4.5 w-4.5" strokeWidth={1.75} aria-hidden="true" />
+                <Menu className="h-5 w-5" strokeWidth={1.75} aria-hidden="true" />
               )}
             </button>
           </div>
@@ -491,7 +491,7 @@ export function AuthScreen({
           <nav
             id="landing-mobile-nav"
             aria-label="Мобільна навігація"
-            className="lg:hidden border-t border-white/[0.07] bg-zinc-950/95 px-4 py-4 space-y-2 animate-radar-enter"
+            className="lg:hidden border-t border-white/[0.07] bg-zinc-950/95 px-4 py-4 space-y-2.5 animate-radar-enter"
           >
             <div className="grid grid-cols-2 gap-2">
               {LANDING_SECTIONS.map((sec) => {
@@ -502,14 +502,14 @@ export function AuthScreen({
                     href={`#${sec.id}`}
                     onClick={() => handleNavClick(sec.id)}
                     aria-current={isCurrent ? 'page' : undefined}
-                    className={`min-h-[44px] px-3.5 rounded-xl border text-xs font-medium flex items-center justify-between transition-colors ${
+                    className={`min-h-[46px] px-3.5 rounded-xl border text-sm font-medium flex items-center justify-between transition-colors ${
                       isCurrent
                         ? 'bg-zinc-800/90 border-emerald-500/40 text-zinc-50'
-                        : 'bg-zinc-900/70 border-white/[0.07] text-zinc-300 hover:text-zinc-50'
+                        : 'bg-zinc-900/70 border-white/[0.07] text-zinc-200 hover:text-zinc-50'
                     }`}
                   >
                     <span>{sec.label}</span>
-                    <ChevronRight className="h-3.5 w-3.5 text-zinc-500" strokeWidth={1.75} aria-hidden="true" />
+                    <ChevronRight className="h-4 w-4 text-zinc-400" strokeWidth={1.75} aria-hidden="true" />
                   </a>
                 );
               })}
@@ -519,7 +519,7 @@ export function AuthScreen({
                 <button
                   type="button"
                   onClick={() => scrollToAuth('login')}
-                  className="min-h-[44px] rounded-xl bg-zinc-900 border border-white/[0.08] text-xs font-medium text-zinc-200 cursor-pointer"
+                  className="min-h-[46px] rounded-xl bg-zinc-900 border border-white/[0.08] text-sm font-medium text-zinc-100 cursor-pointer"
                 >
                   Увійти в кабінет
                 </button>
@@ -528,16 +528,16 @@ export function AuthScreen({
                     type="button"
                     disabled={loading}
                     onClick={handleDemoLogin}
-                    className="min-h-[44px] rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-xs font-medium text-emerald-300 inline-flex items-center justify-center gap-1.5 cursor-pointer"
+                    className="min-h-[46px] rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-sm font-medium text-emerald-300 inline-flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <Sparkles className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                    <Sparkles className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                     Демо-вхід
                   </button>
                 ) : (
                   <button
                     type="button"
                     onClick={() => scrollToAuth('register')}
-                    className="min-h-[44px] rounded-xl bg-zinc-100 text-xs font-medium text-zinc-950 cursor-pointer"
+                    className="min-h-[46px] rounded-xl bg-zinc-100 text-sm font-medium text-zinc-950 cursor-pointer"
                   >
                     Реєстрація
                   </button>
@@ -552,21 +552,21 @@ export function AuthScreen({
         {/* СЕКЦІЯ 1: Hero + Живий інтерактивний симулятор */}
         <section
           id="simulator"
-          className="mx-auto max-w-6xl px-4 sm:px-6 pt-10 pb-16 sm:pt-14 sm:pb-24"
+          className="mx-auto max-w-6xl px-4 sm:px-6 pt-8 pb-14 sm:pt-14 sm:pb-24"
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             {/* Ліва колонка: Продуктовий сенс */}
             <div className="lg:col-span-6 space-y-6 animate-radar-enter">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900/90 px-3.5 py-1.5 text-xs text-zinc-300">
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900/90 px-3.5 py-1.5 text-xs sm:text-sm text-zinc-300">
                 <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" aria-hidden="true" />
                 <span>Фінтех-радар України · {UA_BANKS.length} банків · {UA_CATEGORIES.length} категорій</span>
               </div>
 
               <div className="space-y-4">
-                <h1 className="text-3xl sm:text-5xl font-semibold tracking-tight leading-[1.08] text-zinc-50">
+                <h1 className="text-display-fluid font-semibold tracking-tight text-zinc-50">
                   Точний вибір картки на касі за 2 секунди
                 </h1>
-                <p className="text-base text-zinc-400 leading-relaxed max-w-[56ch]">
+                <p className="text-base sm:text-lg text-zinc-400 leading-relaxed max-w-[56ch]">
                   Вкажіть українську мережу або категорію витрат та суму оплати. КешбекРадар миттєво
                   порівняє ваші картки окремо за власними та кредитними коштами з урахуванням податку
                   23%.
@@ -574,12 +574,12 @@ export function AuthScreen({
               </div>
 
               {/* Група основних дій (Button-in-Button CTA) */}
-              <div className="flex flex-wrap items-center gap-3 pt-1">
+              <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 pt-1">
                 {currentUser && onContinueToApp ? (
                   <button
                     type="button"
                     onClick={onContinueToApp}
-                    className="group min-h-[48px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-medium inline-flex items-center gap-3 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                    className="group min-h-[50px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 text-base font-medium inline-flex items-center justify-between sm:justify-start gap-3 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                   >
                     <span>Відкрити мій Радар вигоди</span>
                     <span className="h-8 w-8 rounded-full bg-zinc-950/10 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
@@ -591,7 +591,7 @@ export function AuthScreen({
                     <button
                       type="button"
                       onClick={() => scrollToAuth('register')}
-                      className="group min-h-[48px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 text-sm font-medium inline-flex items-center gap-3 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                      className="group min-h-[50px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 text-base font-medium inline-flex items-center justify-between sm:justify-start gap-3 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                     >
                       <span>Створити власний гаманець</span>
                       <span className="h-8 w-8 rounded-full bg-zinc-950/10 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
@@ -604,7 +604,7 @@ export function AuthScreen({
                         type="button"
                         disabled={loading}
                         onClick={handleDemoLogin}
-                        className="min-h-[48px] px-5 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-sm font-medium inline-flex items-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                        className="min-h-[50px] px-5 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-sm sm:text-base font-medium inline-flex items-center justify-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                       >
                         <Sparkles className="h-4 w-4 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
                         <span>{loading ? 'Завантаження...' : 'Швидкий демо-вхід (4 картки)'}</span>
@@ -613,7 +613,7 @@ export function AuthScreen({
                       <button
                         type="button"
                         onClick={() => scrollToAuth('login')}
-                        className="min-h-[48px] px-5 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-sm font-medium inline-flex items-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+                        className="min-h-[50px] px-5 rounded-full bg-zinc-900 hover:bg-zinc-800 border border-white/[0.08] text-zinc-200 text-sm sm:text-base font-medium inline-flex items-center justify-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
                       >
                         <span>Увійти в кабінет</span>
                       </button>
@@ -623,30 +623,30 @@ export function AuthScreen({
               </div>
 
               {/* Фактологічні метрики каталогу */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-white/[0.07]">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 pt-4 border-t border-white/[0.07]">
                 <div>
-                  <div className="text-xl font-mono font-semibold text-zinc-50 tabular-nums">
+                  <div className="text-2xl font-mono font-semibold text-zinc-50 tabular-nums">
                     {UA_BANKS.length}
                   </div>
-                  <div className="text-xs text-zinc-400 mt-0.5">банків України</div>
+                  <div className="text-xs sm:text-sm text-zinc-400 mt-0.5">банків України</div>
                 </div>
                 <div>
-                  <div className="text-xl font-mono font-semibold text-zinc-50 tabular-nums">
+                  <div className="text-2xl font-mono font-semibold text-zinc-50 tabular-nums">
                     {UA_CATEGORIES.length}
                   </div>
-                  <div className="text-xs text-zinc-400 mt-0.5">категорій витрат</div>
+                  <div className="text-xs sm:text-sm text-zinc-400 mt-0.5">категорій витрат</div>
                 </div>
                 <div>
-                  <div className="text-xl font-mono font-semibold text-zinc-50 tabular-nums">
+                  <div className="text-2xl font-mono font-semibold text-zinc-50 tabular-nums">
                     {UA_MERCHANTS.length}
                   </div>
-                  <div className="text-xs text-zinc-400 mt-0.5">мереж із MCC</div>
+                  <div className="text-xs sm:text-sm text-zinc-400 mt-0.5">мереж із MCC</div>
                 </div>
                 <div>
-                  <div className="text-xl font-mono font-semibold text-emerald-400 tabular-nums">
+                  <div className="text-2xl font-mono font-semibold text-emerald-400 tabular-nums">
                     ×0.77
                   </div>
-                  <div className="text-xs text-zinc-400 mt-0.5">після 23% податку</div>
+                  <div className="text-xs sm:text-sm text-zinc-400 mt-0.5">після 23% податку</div>
                 </div>
               </div>
             </div>
@@ -658,10 +658,10 @@ export function AuthScreen({
                   {/* Заголовок симулятора */}
                   <div className="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-white/[0.07]">
                     <div>
-                      <div className="text-xs font-medium text-zinc-200">
+                      <div className="text-sm font-medium text-zinc-100">
                         Інтерактивний симулятор поточної покупки
                       </div>
-                      <div className="text-[11px] text-zinc-400 mt-0.5">
+                      <div className="text-xs text-zinc-400 mt-0.5">
                         Реальний рушій розрахунку на прикладі 4 карток
                       </div>
                     </div>
@@ -670,7 +670,7 @@ export function AuthScreen({
                       <button
                         type="button"
                         onClick={() => setSimTaxMode('NET')}
-                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                        className={`min-h-[36px] px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                           simTaxMode === 'NET'
                             ? 'bg-zinc-800 text-zinc-50'
                             : 'text-zinc-400 hover:text-zinc-200'
@@ -681,7 +681,7 @@ export function AuthScreen({
                       <button
                         type="button"
                         onClick={() => setSimTaxMode('GROSS')}
-                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors cursor-pointer ${
+                        className={`min-h-[36px] px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${
                           simTaxMode === 'GROSS'
                             ? 'bg-zinc-800 text-zinc-50'
                             : 'text-zinc-400 hover:text-zinc-200'
@@ -694,11 +694,11 @@ export function AuthScreen({
 
                   {/* Вибір мережі / сценарію */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                    <div className="flex flex-wrap items-center justify-between gap-1 text-xs text-zinc-400">
                       <span>Оберіть магазин для перевірки</span>
                       <span className="font-mono">{activeScenario.hint}</span>
                     </div>
-                    <div className="flex flex-wrap gap-1.5">
+                    <div className="flex flex-wrap gap-2">
                       {DEMO_SCENARIOS.map((sc) => {
                         const selected = sc.id === scenarioId;
                         return (
@@ -706,10 +706,10 @@ export function AuthScreen({
                             key={sc.id}
                             type="button"
                             onClick={() => handleSelectScenario(sc)}
-                            className={`min-h-[36px] px-3 rounded-xl text-xs font-medium border transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.98] cursor-pointer ${
+                            className={`min-h-[40px] px-3.5 rounded-xl text-sm font-medium border transition-[background-color,border-color,color,transform] duration-150 active:scale-[0.98] cursor-pointer ${
                               selected
                                 ? 'bg-emerald-500/15 border-emerald-500/50 text-emerald-300'
-                                : 'bg-zinc-950 border-white/[0.08] text-zinc-300 hover:border-white/[0.16] hover:text-zinc-100'
+                                : 'bg-zinc-950 border-white/[0.08] text-zinc-200 hover:border-white/[0.16] hover:text-zinc-50'
                             }`}
                           >
                             {sc.label}
@@ -720,18 +720,18 @@ export function AuthScreen({
                   </div>
 
                   {/* Вибір суми оплати */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 bg-zinc-950/70 border border-white/[0.06] rounded-xl px-3 py-2">
-                    <span className="text-xs text-zinc-400">Сума оплати</span>
-                    <div className="flex flex-wrap items-center gap-1.5">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-zinc-950/70 border border-white/[0.06] rounded-xl px-3.5 py-2.5">
+                    <span className="text-xs sm:text-sm text-zinc-300">Сума оплати</span>
+                    <div className="grid grid-cols-4 sm:flex sm:flex-wrap items-center gap-1.5">
                       {SIMULATOR_AMOUNT_PRESETS.map((amount) => (
                         <button
                           key={amount}
                           type="button"
                           onClick={() => setSimAmount(amount)}
-                          className={`min-h-[30px] px-2.5 rounded-lg text-xs font-mono tabular-nums border transition-colors cursor-pointer ${
+                          className={`min-h-[36px] px-2.5 rounded-lg text-xs sm:text-sm font-mono tabular-nums border transition-colors cursor-pointer ${
                             simAmount === amount
                               ? 'bg-zinc-800 border-emerald-500/40 text-emerald-300'
-                              : 'bg-zinc-900 border-white/[0.06] text-zinc-400 hover:text-zinc-200'
+                              : 'bg-zinc-900 border-white/[0.06] text-zinc-300 hover:text-zinc-100'
                           }`}
                         >
                           {amount.toLocaleString('uk-UA')} ₴
@@ -748,74 +748,74 @@ export function AuthScreen({
                         style={{ backgroundColor: bestSimRec.bank.brandColor }}
                       />
                       <div className="p-4 space-y-3">
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5">
                           <div>
-                            <div className="inline-flex items-center gap-1.5 text-[11px] font-medium text-emerald-400">
+                            <div className="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400">
                               <Check className="h-3.5 w-3.5" strokeWidth={2} aria-hidden="true" />
                               <span>Рекомендація #1 · {bestFundText}</span>
                             </div>
                             <div className="flex items-baseline gap-2 mt-1 flex-wrap">
-                              <span className="text-base font-semibold text-zinc-50">
+                              <span className="text-lg font-semibold text-zinc-50">
                                 {bestSimRec.bank.nameUk}
                               </span>
-                              <span className="text-xs text-zinc-400">{bestSimRec.card.cardName}</span>
+                              <span className="text-sm text-zinc-400">{bestSimRec.card.cardName}</span>
                             </div>
-                            <div className="text-[11px] text-zinc-400 mt-0.5">
+                            <div className="text-xs text-zinc-400 mt-0.5">
                               {bestSimRec.matchedTitle}
                             </div>
                           </div>
 
-                          <div className="text-right shrink-0">
-                            <div className="text-2xl font-mono font-semibold text-emerald-400 tabular-nums tracking-tight">
+                          <div className="sm:text-right shrink-0">
+                            <div className="text-2xl sm:text-3xl font-mono font-semibold text-emerald-400 tabular-nums tracking-tight">
                               +{formatUah(bestSimRec.bestDisplayedCashbackUah)} ₴
                             </div>
-                            <div className="text-[11px] font-mono text-zinc-400 tabular-nums">
+                            <div className="text-xs font-mono text-zinc-400 tabular-nums">
                               Ставка {formatPercent(bestSimRec.bestRatePercent)}
                             </div>
                           </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-2 gap-2.5">
                           <div
-                            className={`rounded-xl px-3 py-2 border ${
+                            className={`rounded-xl px-3 py-2.5 border ${
                               bestSimRec.bestFundType === 'OWN' ||
                               bestSimRec.bestFundType === 'EQUAL'
                                 ? 'bg-emerald-500/10 border-emerald-500/35'
                                 : 'bg-zinc-950/60 border-white/[0.06]'
                             }`}
                           >
-                            <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                            <div className="flex items-center justify-between text-xs text-zinc-300">
                               <span className="inline-flex items-center gap-1">
-                                <Wallet className="h-3 w-3" strokeWidth={1.75} aria-hidden="true" />
+                                <Wallet className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
                                 Власні
                               </span>
-                              <span className="font-mono text-zinc-200 tabular-nums">
+                              <span className="font-mono text-zinc-100 tabular-nums">
                                 {formatPercent(bestSimRec.ownFunds.ratePercent)}
                               </span>
                             </div>
-                            <div className="font-mono text-xs font-semibold text-zinc-100 tabular-nums mt-1">
+                            <div className="font-mono text-sm font-semibold text-zinc-100 tabular-nums mt-1">
                               +{formatUah(bestSimRec.ownFunds.displayedCashbackUah)} ₴
                             </div>
                           </div>
 
                           <div
-                            className={`rounded-xl px-3 py-2 border ${
+                            className={`rounded-xl px-3 py-2.5 border ${
                               bestSimRec.bestFundType === 'CREDIT' ||
                               bestSimRec.bestFundType === 'EQUAL'
                                 ? 'bg-emerald-500/10 border-emerald-500/35'
                                 : 'bg-zinc-950/60 border-white/[0.06]'
                             }`}
                           >
-                            <div className="flex items-center justify-between text-[11px] text-zinc-400">
+                            <div className="flex items-center justify-between text-xs text-zinc-300">
                               <span className="inline-flex items-center gap-1">
-                                <CreditCard className="h-3 w-3" strokeWidth={1.75} aria-hidden="true" />
+                                <CreditCard className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
                                 Кредитні
                               </span>
-                              <span className="font-mono text-zinc-200 tabular-nums">
+                              <span className="font-mono text-zinc-100 tabular-nums">
                                 {formatPercent(bestSimRec.creditFunds.ratePercent)}
                               </span>
                             </div>
-                            <div className="font-mono text-xs font-semibold text-zinc-100 tabular-nums mt-1">
+                            <div className="font-mono text-sm font-semibold text-zinc-100 tabular-nums mt-1">
                               +{formatUah(bestSimRec.creditFunds.displayedCashbackUah)} ₴
                             </div>
                           </div>
@@ -829,21 +829,21 @@ export function AuthScreen({
                     {secondarySimRecs.map((rec) => (
                       <div
                         key={rec.card.id}
-                        className="px-3.5 py-2.5 flex items-center justify-between gap-3 text-xs"
+                        className="px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-3 text-sm"
                       >
                         <div className="flex items-center gap-2.5 min-w-0">
                           <span
-                            className="h-3 w-1 rounded-full shrink-0"
+                            className="h-3.5 w-1 rounded-full shrink-0"
                             style={{ backgroundColor: rec.bank.brandColor }}
                           />
                           <span className="font-medium text-zinc-200 truncate">
                             {rec.bank.nameUk}
                           </span>
-                          <span className="hidden sm:inline text-zinc-500 truncate">
+                          <span className="text-xs text-zinc-400 truncate">
                             {rec.card.cardName}
                           </span>
                         </div>
-                        <div className="flex items-center gap-3 font-mono tabular-nums shrink-0 text-[11px]">
+                        <div className="flex items-center justify-between sm:justify-end gap-3 font-mono tabular-nums shrink-0 text-xs">
                           <span className="text-zinc-300">
                             Вл. {formatPercent(rec.ownFunds.ratePercent)}: +{formatUah(rec.ownFunds.displayedCashbackUah)} ₴
                           </span>
@@ -863,16 +863,16 @@ export function AuthScreen({
         {/* СЕКЦІЯ 2: Bento-сітка ключових можливостей */}
         <section
           id="features"
-          className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24 border-t border-white/[0.06]"
+          className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-24 border-t border-white/[0.06]"
         >
           <div className="max-w-2xl space-y-3 mb-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900 px-3 py-1 text-[11px] font-medium text-zinc-300">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900 px-3.5 py-1 text-xs font-medium text-zinc-300">
               <span>Архітектура розрахунку</span>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-zinc-50">
+            <h2 className="text-section-fluid font-semibold tracking-tight text-zinc-50">
               Спроєктовано під реалії українських банків
             </h2>
-            <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
+            <p className="text-base text-zinc-400 leading-relaxed">
               Замість пам’ятати таблиці відсотків у голові перед кожною оплатою, сервіс зводить
               умови всіх ваших карток в одну чесну рекомендацію.
             </p>
@@ -881,15 +881,15 @@ export function AuthScreen({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5">
             {/* Картка 1: Власні vs Кредитні (7 колонок) */}
             <article className="lg:col-span-7 bezel-shell">
-              <div className="bezel-core h-full p-6 flex flex-col justify-between gap-6">
+              <div className="bezel-core h-full p-5 sm:p-6 flex flex-col justify-between gap-6">
                 <div className="space-y-2.5">
                   <div className="h-10 w-10 rounded-xl bg-zinc-950 border border-white/[0.08] flex items-center justify-center">
                     <CreditCard className="h-5 w-5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
                   </div>
-                  <h3 className="text-lg font-semibold text-zinc-50 tracking-tight">
+                  <h3 className="text-xl font-semibold text-zinc-50 tracking-tight">
                     Власні та кредитні кошти рахуються окремо
                   </h3>
-                  <p className="text-sm text-zinc-400 leading-relaxed max-w-[54ch]">
+                  <p className="text-sm sm:text-base text-zinc-400 leading-relaxed max-w-[54ch]">
                     У різних банків вигода за кредитним лімітом і за дебетовим залишком може
                     відрізнятися удвічі. Радар порівнює обидва варіанти й прямо вказує, з якої
                     картки та якими коштами платити.
@@ -898,25 +898,25 @@ export function AuthScreen({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] p-3.5">
-                    <div className="text-[11px] text-zinc-400">Наприклад, monobank · Продукти</div>
+                    <div className="text-xs text-zinc-400">Наприклад, monobank · Продукти</div>
                     <div className="mt-1.5 flex items-baseline justify-between font-mono tabular-nums">
-                      <span className="text-xs text-zinc-300">Власні кошти</span>
-                      <span className="text-sm font-semibold text-emerald-400">2%</span>
+                      <span className="text-sm text-zinc-200">Власні кошти</span>
+                      <span className="text-base font-semibold text-emerald-400">2%</span>
                     </div>
                     <div className="mt-1 flex items-baseline justify-between font-mono tabular-nums">
-                      <span className="text-xs text-zinc-500">Кредитні кошти</span>
-                      <span className="text-xs text-zinc-400">0.75%</span>
+                      <span className="text-sm text-zinc-500">Кредитні кошти</span>
+                      <span className="text-sm text-zinc-400">0.75%</span>
                     </div>
                   </div>
                   <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] p-3.5">
-                    <div className="text-[11px] text-zinc-400">Наприклад, ПУМБ · Продукти</div>
+                    <div className="text-xs text-zinc-400">Наприклад, ПУМБ · Продукти</div>
                     <div className="mt-1.5 flex items-baseline justify-between font-mono tabular-nums">
-                      <span className="text-xs text-zinc-500">Власні кошти</span>
-                      <span className="text-xs text-zinc-400">1.5%</span>
+                      <span className="text-sm text-zinc-500">Власні кошти</span>
+                      <span className="text-sm text-zinc-400">1.5%</span>
                     </div>
                     <div className="mt-1 flex items-baseline justify-between font-mono tabular-nums">
-                      <span className="text-xs text-zinc-300">Кредитні кошти</span>
-                      <span className="text-sm font-semibold text-emerald-400">3%</span>
+                      <span className="text-sm text-zinc-200">Кредитні кошти</span>
+                      <span className="text-base font-semibold text-emerald-400">3%</span>
                     </div>
                   </div>
                 </div>
@@ -925,32 +925,32 @@ export function AuthScreen({
 
             {/* Картка 2: Податок 23% (5 колонок) */}
             <article className="lg:col-span-5 bezel-shell">
-              <div className="bezel-core h-full p-6 flex flex-col justify-between gap-6">
+              <div className="bezel-core h-full p-5 sm:p-6 flex flex-col justify-between gap-6">
                 <div className="space-y-2.5">
                   <div className="h-10 w-10 rounded-xl bg-zinc-950 border border-white/[0.08] flex items-center justify-center">
                     <Calculator className="h-5 w-5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
                   </div>
-                  <h3 className="text-lg font-semibold text-zinc-50 tracking-tight">
+                  <h3 className="text-xl font-semibold text-zinc-50 tracking-tight">
                     Чесний чистий кешбек на руки
                   </h3>
-                  <p className="text-sm text-zinc-400 leading-relaxed">
+                  <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
                     Автоматичне утримання 18% ПДФО та 5% військового збору (разом 23%) або швидке
                     перемикання на номінал для бальних програм.
                   </p>
                 </div>
 
-                <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] p-3.5 font-mono text-xs space-y-1.5 tabular-nums">
-                  <div className="flex justify-between text-zinc-400">
-                    <span>Брудний кешбек (5% від 1 000 ₴)</span>
-                    <span className="text-zinc-200">50.00 ₴</span>
+                <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] p-4 font-mono text-sm space-y-2 tabular-nums">
+                  <div className="flex justify-between gap-2 text-zinc-400">
+                    <span>Брудний (5% від 1 000 ₴)</span>
+                    <span className="text-zinc-200 shrink-0">50.00 ₴</span>
                   </div>
-                  <div className="flex justify-between text-zinc-400">
-                    <span>Податки України (-23%)</span>
-                    <span className="text-zinc-400">-11.50 ₴</span>
+                  <div className="flex justify-between gap-2 text-zinc-400">
+                    <span>Податки (-23%)</span>
+                    <span className="text-zinc-400 shrink-0">-11.50 ₴</span>
                   </div>
-                  <div className="pt-1.5 border-t border-white/[0.07] flex justify-between font-semibold text-emerald-400">
+                  <div className="pt-2 border-t border-white/[0.07] flex justify-between gap-2 font-semibold text-emerald-400">
                     <span>Чистий кешбек</span>
-                    <span>+38.50 ₴</span>
+                    <span className="shrink-0">+38.50 ₴</span>
                   </div>
                 </div>
               </div>
@@ -958,28 +958,28 @@ export function AuthScreen({
 
             {/* Картка 3: База MCC та мереж (5 колонок) */}
             <article className="lg:col-span-5 bezel-shell">
-              <div className="bezel-core h-full p-6 flex flex-col justify-between gap-6">
+              <div className="bezel-core h-full p-5 sm:p-6 flex flex-col justify-between gap-6">
                 <div className="space-y-2.5">
                   <div className="h-10 w-10 rounded-xl bg-zinc-950 border border-white/[0.08] flex items-center justify-center">
                     <Layers className="h-5 w-5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
                   </div>
-                  <h3 className="text-lg font-semibold text-zinc-50 tracking-tight">
+                  <h3 className="text-xl font-semibold text-zinc-50 tracking-tight">
                     Точний пошук за магазином або MCC
                   </h3>
-                  <p className="text-sm text-zinc-400 leading-relaxed">
+                  <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
                     Розпізнає АТБ, Сільпо, Аврору, Rozetka, Comfy, Епіцентр, ОККО, Єва, АНЦ,
                     ChatGPT та показує попередження про змішані термінали.
                   </p>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 font-mono text-[11px] tabular-nums">
-                  <span className="rounded-lg bg-zinc-950 border border-white/[0.07] px-2.5 py-1 text-zinc-300">
+                <div className="flex flex-wrap gap-2 font-mono text-xs tabular-nums">
+                  <span className="rounded-lg bg-zinc-950 border border-white/[0.07] px-2.5 py-1.5 text-zinc-300">
                     MCC 5411 · Сільпо
                   </span>
-                  <span className="rounded-lg bg-zinc-950 border border-white/[0.07] px-2.5 py-1 text-zinc-300">
+                  <span className="rounded-lg bg-zinc-950 border border-white/[0.07] px-2.5 py-1.5 text-zinc-300">
                     MCC 5331 · Аврора
                   </span>
-                  <span className="rounded-lg bg-zinc-950 border border-white/[0.07] px-2.5 py-1 text-zinc-300">
+                  <span className="rounded-lg bg-zinc-950 border border-white/[0.07] px-2.5 py-1.5 text-zinc-300">
                     MCC 5912 · Аптеки
                   </span>
                 </div>
@@ -988,29 +988,29 @@ export function AuthScreen({
 
             {/* Картка 4: Ізоляція та безпека (7 колонок) */}
             <article className="lg:col-span-7 bezel-shell">
-              <div className="bezel-core h-full p-6 flex flex-col justify-between gap-6">
+              <div className="bezel-core h-full p-5 sm:p-6 flex flex-col justify-between gap-6">
                 <div className="space-y-2.5">
                   <div className="h-10 w-10 rounded-xl bg-zinc-950 border border-white/[0.08] flex items-center justify-center">
                     <ShieldCheck className="h-5 w-5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
                   </div>
-                  <h3 className="text-lg font-semibold text-zinc-50 tracking-tight">
+                  <h3 className="text-xl font-semibold text-zinc-50 tracking-tight">
                     Повна ізоляція гаманця кожного учасника
                   </h3>
-                  <p className="text-sm text-zinc-400 leading-relaxed max-w-[54ch]">
+                  <p className="text-sm sm:text-base text-zinc-400 leading-relaxed max-w-[54ch]">
                     Сервіс не потребує доступу до банківських рахунків чи SMS. Учасник самостійно
                     фіксує свої ставки, а дані суворо ізольовані на рівні Row Level Security за
                     ідентифікатором користувача.
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
-                  <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] px-3.5 py-2.5 text-zinc-300">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-sm">
+                  <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] px-3.5 py-3 text-zinc-300">
                     Без підключення Open Banking або CVV
                   </div>
-                  <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] px-3.5 py-2.5 text-zinc-300">
+                  <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] px-3.5 py-3 text-zinc-300">
                     PBKDF2-HMAC-SHA256 та Supabase RLS
                   </div>
-                  <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] px-3.5 py-2.5 text-zinc-300">
+                  <div className="rounded-xl bg-zinc-950/80 border border-white/[0.06] px-3.5 py-3 text-zinc-300">
                     Подання пропозицій змін до каталогу
                   </div>
                 </div>
@@ -1022,25 +1022,25 @@ export function AuthScreen({
         {/* СЕКЦІЯ 3: Як це працює за 3 кроки */}
         <section
           id="how-it-works"
-          className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24 border-t border-white/[0.06]"
+          className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-24 border-t border-white/[0.06]"
         >
           <div className="max-w-2xl space-y-3 mb-10">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900 px-3 py-1 text-[11px] font-medium text-zinc-300">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900 px-3.5 py-1 text-xs font-medium text-zinc-300">
               <span>Швидкий старт</span>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-zinc-50">
+            <h2 className="text-section-fluid font-semibold tracking-tight text-zinc-50">
               Три кроки до максимальної вигоди
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div className="bezel-shell-sm">
-              <div className="bezel-core-sm h-full p-5 space-y-3">
-                <div className="font-mono text-xs font-semibold text-emerald-400">01 · Гаманець</div>
-                <h3 className="text-base font-semibold text-zinc-50">
+              <div className="bezel-core-sm h-full p-5 sm:p-6 space-y-3">
+                <div className="font-mono text-sm font-semibold text-emerald-400">01 · Гаманець</div>
+                <h3 className="text-lg font-semibold text-zinc-50">
                   Додайте картки з пулу 21 банку
                 </h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">
+                <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
                   Оберіть потрібні банки України або завантажте стартовий набір із 4 популярних
                   карток за один клік.
                 </p>
@@ -1048,12 +1048,12 @@ export function AuthScreen({
             </div>
 
             <div className="bezel-shell-sm">
-              <div className="bezel-core-sm h-full p-5 space-y-3">
-                <div className="font-mono text-xs font-semibold text-emerald-400">02 · Ставки місяця</div>
-                <h3 className="text-base font-semibold text-zinc-50">
+              <div className="bezel-core-sm h-full p-5 sm:p-6 space-y-3">
+                <div className="font-mono text-sm font-semibold text-emerald-400">02 · Ставки місяця</div>
+                <h3 className="text-lg font-semibold text-zinc-50">
                   Виставте правила кешбеку раз на місяць
                 </h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">
+                <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
                   Вкажіть обрані категорії, партнерські пропозиції банків та базовий фолбек на усі
                   покупки окремо для власних і кредитних коштів.
                 </p>
@@ -1061,12 +1061,12 @@ export function AuthScreen({
             </div>
 
             <div className="bezel-shell-sm">
-              <div className="bezel-core-sm h-full p-5 space-y-3">
-                <div className="font-mono text-xs font-semibold text-emerald-400">03 · На касі</div>
-                <h3 className="text-base font-semibold text-zinc-50">
+              <div className="bezel-core-sm h-full p-5 sm:p-6 space-y-3">
+                <div className="font-mono text-sm font-semibold text-emerald-400">03 · На касі</div>
+                <h3 className="text-lg font-semibold text-zinc-50">
                   Отримайте точну рекомендацію оплати
                 </h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">
+                <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
                   Введіть назву магазину перед оплатою і одразу побачте переможця рейтингу та суму
                   чистого кешбеку в гривнях.
                 </p>
@@ -1078,42 +1078,42 @@ export function AuthScreen({
         {/* СЕКЦІЯ 4: Вітрина пулу 21 банку України та 25 категорій */}
         <section
           id="catalog-preview"
-          className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24 border-t border-white/[0.06]"
+          className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-24 border-t border-white/[0.06]"
         >
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
             <div className="space-y-2 max-w-xl">
-              <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-zinc-50">
+              <h2 className="text-section-fluid font-semibold tracking-tight text-zinc-50">
                 Пул банків та категорій України
               </h2>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm sm:text-base text-zinc-400">
                 Актуальні українські фінансові установи та канонічні категорії кешбеку станом на
                 листопад 2026 року.
               </p>
             </div>
 
-            <div className="inline-grid grid-cols-2 gap-1 rounded-xl bg-zinc-900 p-1 border border-white/[0.08] self-start">
+            <div className="inline-grid grid-cols-2 gap-1 rounded-xl bg-zinc-900 p-1 border border-white/[0.08] w-full sm:w-auto self-start">
               <button
                 type="button"
                 onClick={() => setCatalogTab('banks')}
-                className={`min-h-[38px] px-3.5 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                className={`min-h-[42px] px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                   catalogTab === 'banks'
                     ? 'bg-zinc-800 text-zinc-50'
                     : 'text-zinc-400 hover:text-zinc-100'
                 }`}
               >
-                <Building2 className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                <Building2 className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                 <span>Банки ({UA_BANKS.length})</span>
               </button>
               <button
                 type="button"
                 onClick={() => setCatalogTab('categories')}
-                className={`min-h-[38px] px-3.5 rounded-lg text-xs font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
+                className={`min-h-[42px] px-4 rounded-lg text-sm font-medium inline-flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
                   catalogTab === 'categories'
                     ? 'bg-zinc-800 text-zinc-50'
                     : 'text-zinc-400 hover:text-zinc-100'
                 }`}
               >
-                <Tag className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+                <Tag className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                 <span>Категорії ({UA_CATEGORIES.length})</span>
               </button>
             </div>
@@ -1134,15 +1134,15 @@ export function AuthScreen({
                           style={{ backgroundColor: bank.brandColor }}
                         />
                         <div className="min-w-0">
-                          <div className="text-xs font-medium text-zinc-100 truncate">
+                          <div className="text-sm font-medium text-zinc-100 truncate">
                             {bank.nameUk}
                           </div>
-                          <div className="text-[11px] text-zinc-500 truncate">
+                          <div className="text-xs text-zinc-400 truncate">
                             {bank.cardPresets[0] ?? 'Основна картка'}
                           </div>
                         </div>
                       </div>
-                      <span className="font-mono text-[11px] text-zinc-400 tabular-nums shrink-0">
+                      <span className="font-mono text-xs text-zinc-400 tabular-nums shrink-0">
                         -{bank.defaultTaxPercent}%
                       </span>
                     </div>
@@ -1158,15 +1158,15 @@ export function AuthScreen({
                       <div className="flex items-center gap-2.5 min-w-0">
                         <CategoryIcon
                           iconName={cat.iconName}
-                          className="h-4 w-4 text-emerald-400 shrink-0"
+                          className="h-4.5 w-4.5 text-emerald-400 shrink-0"
                           strokeWidth={1.75}
                           aria-hidden="true"
                         />
-                        <span className="text-xs font-medium text-zinc-100 truncate">
+                        <span className="text-sm font-medium text-zinc-100 truncate">
                           {cat.nameUk}
                         </span>
                       </div>
-                      <span className="font-mono text-[11px] text-zinc-500 tabular-nums shrink-0">
+                      <span className="font-mono text-xs text-zinc-400 tabular-nums shrink-0">
                         {cat.mccCodes.length > 0
                           ? `MCC ${cat.mccCodes.slice(0, 2).join(', ')}`
                           : 'Базова'}
@@ -1183,33 +1183,33 @@ export function AuthScreen({
         <section
           ref={authPanelRef}
           id="auth-panel"
-          className="mx-auto max-w-6xl px-4 sm:px-6 py-16 sm:py-24 border-t border-white/[0.06]"
+          className="mx-auto max-w-6xl px-4 sm:px-6 py-14 sm:py-24 border-t border-white/[0.06]"
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
             <div className="lg:col-span-6 space-y-4">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900 px-3 py-1 text-[11px] font-medium text-emerald-400">
-                <ShieldCheck className="h-3.5 w-3.5" strokeWidth={1.75} aria-hidden="true" />
+              <div className="inline-flex items-center gap-2 rounded-full border border-white/[0.08] bg-zinc-900 px-3.5 py-1 text-xs font-medium text-emerald-400">
+                <ShieldCheck className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
                 <span>Персональний кабінет учасника</span>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-zinc-50">
+              <h2 className="text-section-fluid font-semibold tracking-tight text-zinc-50">
                 Почніть керувати своїм гаманцем кешбеку
               </h2>
-              <p className="text-sm sm:text-base text-zinc-400 leading-relaxed max-w-[50ch]">
+              <p className="text-base text-zinc-400 leading-relaxed max-w-[50ch]">
                 Усі ваші картки користувача, щомісячні правила кешбеку та пропозиції змін
                 зберігаються ізольовано виключно під вашим обліковим записом.
               </p>
 
-              <ul className="space-y-2.5 pt-2 text-sm text-zinc-300">
+              <ul className="space-y-3 pt-2 text-sm sm:text-base text-zinc-300">
                 <li className="flex items-center gap-2.5">
-                  <Check className="h-4 w-4 text-emerald-400 shrink-0" strokeWidth={2} aria-hidden="true" />
+                  <Check className="h-4.5 w-4.5 text-emerald-400 shrink-0" strokeWidth={2} aria-hidden="true" />
                   <span>Миттєвий підбір картки за назвою магазину або MCC-кодом</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <Check className="h-4 w-4 text-emerald-400 shrink-0" strokeWidth={2} aria-hidden="true" />
+                  <Check className="h-4.5 w-4.5 text-emerald-400 shrink-0" strokeWidth={2} aria-hidden="true" />
                   <span>Окремі ставки за власні кошти, кредитні кошти та партнерів</span>
                 </li>
                 <li className="flex items-center gap-2.5">
-                  <Check className="h-4 w-4 text-emerald-400 shrink-0" strokeWidth={2} aria-hidden="true" />
+                  <Check className="h-4.5 w-4.5 text-emerald-400 shrink-0" strokeWidth={2} aria-hidden="true" />
                   <span>Скидання ставок на новий місяць одним натисканням</span>
                 </li>
               </ul>
@@ -1217,27 +1217,27 @@ export function AuthScreen({
 
             <div className="lg:col-span-6 w-full">
               <div className="bezel-shell">
-                <div className="bezel-core p-6 space-y-5">
+                <div className="bezel-core p-5 sm:p-6 space-y-5">
                   {currentUser && onContinueToApp ? (
                     <div className="space-y-5">
                       <div className="space-y-1">
-                        <h3 className="text-xl font-semibold text-zinc-50 tracking-tight">
+                        <h3 className="text-xl sm:text-2xl font-semibold text-zinc-50 tracking-tight">
                           Ви вже авторизовані
                         </h3>
-                        <p className="text-xs text-zinc-400">
+                        <p className="text-sm text-zinc-400">
                           Активна сесія учасника готова до роботи з Радаром вигоди
                         </p>
                       </div>
 
                       <div className="rounded-xl bg-zinc-950 border border-white/[0.07] p-4 flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center shrink-0">
+                        <div className="h-11 w-11 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-center shrink-0">
                           <User className="h-5 w-5 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-sm font-semibold text-zinc-100 truncate">
+                          <div className="text-base font-semibold text-zinc-100 truncate">
                             {currentUser.displayName}
                           </div>
-                          <div className="text-xs font-mono text-zinc-400 truncate">
+                          <div className="text-xs sm:text-sm font-mono text-zinc-400 truncate">
                             {currentUser.email}
                           </div>
                         </div>
@@ -1246,7 +1246,7 @@ export function AuthScreen({
                       <button
                         type="button"
                         onClick={onContinueToApp}
-                        className="group w-full min-h-[48px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-sm flex items-center justify-between transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer"
+                        className="group w-full min-h-[50px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-base flex items-center justify-between transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer"
                       >
                         <span>Перейти до робочого кабінету</span>
                         <span className="h-8 w-8 rounded-full bg-zinc-950/10 flex items-center justify-center transition-transform duration-200 group-hover:translate-x-0.5">
@@ -1257,10 +1257,10 @@ export function AuthScreen({
                   ) : (
                     <>
                       <div className="space-y-1">
-                        <h3 className="text-xl font-semibold text-zinc-50 tracking-tight">
+                        <h3 className="text-xl sm:text-2xl font-semibold text-zinc-50 tracking-tight">
                           {mode === 'login' ? 'Вхід у персональний кабінет' : 'Реєстрація учасника'}
                         </h3>
-                        <p className="text-xs text-zinc-400">
+                        <p className="text-sm text-zinc-400">
                           Ваші картки та щомісячні відсотки доступні лише вам
                         </p>
                       </div>
@@ -1272,7 +1272,7 @@ export function AuthScreen({
                             setMode('login');
                             setError(null);
                           }}
-                          className={`min-h-[42px] rounded-lg text-xs font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
+                          className={`min-h-[44px] rounded-lg text-sm font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
                             mode === 'login'
                               ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
                               : 'text-zinc-400 hover:text-zinc-200'
@@ -1286,7 +1286,7 @@ export function AuthScreen({
                             setMode('register');
                             setError(null);
                           }}
-                          className={`min-h-[42px] rounded-lg text-xs font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
+                          className={`min-h-[44px] rounded-lg text-sm font-medium transition-[background-color,color,transform] duration-200 active:scale-[0.98] cursor-pointer ${
                             mode === 'register'
                               ? 'bg-zinc-800 text-zinc-50 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]'
                               : 'text-zinc-400 hover:text-zinc-200'
@@ -1300,14 +1300,14 @@ export function AuthScreen({
                         {mode === 'register' && (
                           <div className="space-y-1.5">
                             <label
-                              className="block text-xs font-medium text-zinc-300"
+                              className="block text-sm font-medium text-zinc-300"
                               htmlFor="auth-name"
                             >
                               Ім’я учасника
                             </label>
                             <div className="relative">
                               <User
-                                className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+                                className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-zinc-500"
                                 strokeWidth={1.75}
                                 aria-hidden="true"
                               />
@@ -1320,7 +1320,7 @@ export function AuthScreen({
                                 value={displayName}
                                 onChange={(e) => setDisplayName(e.target.value)}
                                 placeholder="Олександр"
-                                className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                                className="w-full min-h-[48px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-base text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
                               />
                             </div>
                           </div>
@@ -1328,14 +1328,14 @@ export function AuthScreen({
 
                         <div className="space-y-1.5">
                           <label
-                            className="block text-xs font-medium text-zinc-300"
+                            className="block text-sm font-medium text-zinc-300"
                             htmlFor="auth-email"
                           >
                             Електронна пошта
                           </label>
                           <div className="relative">
                             <Mail
-                              className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+                              className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-zinc-500"
                               strokeWidth={1.75}
                               aria-hidden="true"
                             />
@@ -1349,21 +1349,21 @@ export function AuthScreen({
                               value={email}
                               onChange={(e) => setEmail(e.target.value)}
                               placeholder="name@example.com"
-                              className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                              className="w-full min-h-[48px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-base text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
                             />
                           </div>
                         </div>
 
                         <div className="space-y-1.5">
                           <label
-                            className="block text-xs font-medium text-zinc-300"
+                            className="block text-sm font-medium text-zinc-300"
                             htmlFor="auth-password"
                           >
                             Пароль (мін. 8 символів)
                           </label>
                           <div className="relative">
                             <Lock
-                              className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500"
+                              className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4.5 w-4.5 text-zinc-500"
                               strokeWidth={1.75}
                               aria-hidden="true"
                             />
@@ -1379,13 +1379,13 @@ export function AuthScreen({
                               value={password}
                               onChange={(e) => setPassword(e.target.value)}
                               placeholder="••••••••"
-                              className="w-full min-h-[46px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
+                              className="w-full min-h-[48px] rounded-xl bg-zinc-950 border border-zinc-800 pl-10 pr-4 text-base text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500 transition-colors"
                             />
                           </div>
                         </div>
 
                         {error && (
-                          <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 px-3.5 py-2.5 text-xs text-rose-300 leading-relaxed">
+                          <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 px-3.5 py-2.5 text-sm text-rose-300 leading-relaxed">
                             {error}
                           </div>
                         )}
@@ -1393,12 +1393,12 @@ export function AuthScreen({
                         <button
                           type="submit"
                           disabled={loading}
-                          className="group w-full min-h-[48px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white disabled:opacity-50 text-zinc-950 font-medium text-sm flex items-center justify-between transition-[background-color,transform,opacity] duration-200 active:scale-[0.98] cursor-pointer"
+                          className="group w-full min-h-[50px] pl-5 pr-2 rounded-full bg-zinc-100 hover:bg-white disabled:opacity-50 text-zinc-950 font-medium text-base flex items-center justify-between transition-[background-color,transform,opacity] duration-200 active:scale-[0.98] cursor-pointer"
                         >
                           <span className="inline-flex items-center gap-2">
                             {mode === 'register' ? (
                               <>
-                                <UserPlus className="h-4 w-4" strokeWidth={1.75} aria-hidden="true" />
+                                <UserPlus className="h-4.5 w-4.5" strokeWidth={1.75} aria-hidden="true" />
                                 <span>{loading ? 'Створюємо кабінет...' : 'Зареєструватися'}</span>
                               </>
                             ) : (
@@ -1417,12 +1417,12 @@ export function AuthScreen({
                             type="button"
                             disabled={loading}
                             onClick={handleDemoLogin}
-                            className="w-full min-h-[44px] rounded-xl bg-zinc-950 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-800 font-medium text-xs flex items-center justify-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer"
+                            className="w-full min-h-[46px] rounded-xl bg-zinc-950 hover:bg-zinc-800/80 text-zinc-200 border border-zinc-800 font-medium text-sm flex items-center justify-center gap-2 transition-[background-color,transform] duration-200 active:scale-[0.98] cursor-pointer"
                           >
                             <Sparkles className="h-4 w-4 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
                             <span>Швидкий демо-вхід (4 українські картки)</span>
                           </button>
-                          <p className="text-[11px] text-center text-zinc-500">
+                          <p className="text-xs text-center text-zinc-400">
                             Локальний ізольований режим. Для хмарної синхронізації додайте ключі
                             Supabase у .env
                           </p>
@@ -1438,15 +1438,15 @@ export function AuthScreen({
       </main>
 
       {/* Лаконічний футер */}
-      <footer className="border-t border-white/[0.07] bg-zinc-950 py-8 px-4 sm:px-6">
-        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-xs text-zinc-500">
-          <div className="flex items-center gap-2 text-zinc-300">
+      <footer className="border-t border-white/[0.07] bg-zinc-950 py-8 px-4 sm:px-6 pb-[max(2rem,env(safe-area-inset-bottom,0px))]">
+        <div className="mx-auto max-w-6xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 text-sm text-zinc-400">
+          <div className="flex items-center gap-2 text-zinc-200">
             <Radar className="h-4 w-4 text-emerald-400" strokeWidth={1.75} aria-hidden="true" />
             <span className="font-medium">КешбекРадар Україна</span>
             <span className="text-zinc-600">·</span>
             <span className="font-mono">{previewMonth}</span>
           </div>
-          <div className="flex flex-wrap items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm">
             <span>{UA_BANKS.length} банків України</span>
             <span>{UA_CATEGORIES.length} категорій витрат</span>
             <span>Податок кешбеку 23% (18% ПДФО + 5% ВЗ)</span>
