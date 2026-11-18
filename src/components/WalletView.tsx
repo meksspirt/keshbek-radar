@@ -168,38 +168,39 @@ export function WalletView({
   }
 
   return (
-    <div className="space-y-5 pb-10">
+    <div className="space-y-6 pb-10 animate-radar-enter">
       {/* Верхня панель керування гаманцем */}
-      <section className="rounded-3xl bg-slate-900/90 border border-slate-800 p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <section className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-zinc-800/80">
         <div>
-          <div className="text-xs font-semibold uppercase tracking-wider text-emerald-400">
-            Період налаштування: {formatMonthLabel(monthYear)}
+          <div className="text-xs font-mono text-emerald-400">
+            {formatMonthLabel(monthYear)}
           </div>
-          <h2 className="text-xl font-bold text-white mt-0.5">Мої банківські картки</h2>
-          <p className="text-xs text-slate-400 mt-1">
-            Оберіть ваші банки з пулу 21 банку України та вкажіть активні `%` за власні та кредитні
-            кошти.
+          <h2 className="text-2xl font-semibold text-zinc-50 tracking-tight mt-0.5">
+            Мої банківські картки
+          </h2>
+          <p className="text-sm text-zinc-400 mt-1">
+            Оберіть банки з пулу 21 банку України та задайте `%` за власні та кредитні кошти
           </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           {cards.length > 0 && (
             confirmReset ? (
-              <div className="inline-flex items-center gap-1.5 rounded-xl bg-rose-500/10 border border-rose-500/30 p-1">
+              <div className="inline-flex items-center gap-1 rounded-xl bg-rose-500/10 border border-rose-500/30 p-1">
                 <button
                   type="button"
                   onClick={async () => {
                     await onResetMonthRates(monthYear);
                     setConfirmReset(false);
                   }}
-                  className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs font-semibold cursor-pointer"
+                  className="px-3 py-1.5 rounded-lg bg-rose-500 text-white text-xs font-medium cursor-pointer"
                 >
                   Підтвердити обнулення
                 </button>
                 <button
                   type="button"
                   onClick={() => setConfirmReset(false)}
-                  className="px-2 py-1.5 text-xs text-slate-300 cursor-pointer"
+                  className="px-2.5 py-1.5 text-xs text-zinc-300 cursor-pointer"
                 >
                   Скасувати
                 </button>
@@ -208,9 +209,9 @@ export function WalletView({
               <button
                 type="button"
                 onClick={() => setConfirmReset(true)}
-                className="min-h-[44px] px-3.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-medium text-slate-200 inline-flex items-center gap-1.5 transition cursor-pointer"
+                className="min-h-[42px] px-3.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-xs font-medium text-zinc-300 inline-flex items-center gap-1.5 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer"
               >
-                <RotateCcw className="h-3.5 w-3.5" />
+                <RotateCcw className="h-3.5 w-3.5" strokeWidth={1.75} />
                 Новий місяць (обнулити %)
               </button>
             )
@@ -219,16 +220,16 @@ export function WalletView({
           <button
             type="button"
             onClick={() => setShowAddCardForm((prev) => !prev)}
-            className="min-h-[44px] px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-sm inline-flex items-center gap-1.5 transition cursor-pointer"
+            className="min-h-[42px] px-4 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-sm inline-flex items-center gap-1.5 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer"
           >
-            {showAddCardForm ? <X className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+            {showAddCardForm ? <X className="h-4 w-4" strokeWidth={1.75} /> : <Plus className="h-4 w-4" strokeWidth={1.75} />}
             Додати картку
           </button>
         </div>
       </section>
 
       {errorMsg && (
-        <div className="rounded-2xl bg-rose-500/10 border border-rose-500/30 px-4 py-3 text-xs text-rose-300">
+        <div className="rounded-xl bg-rose-500/10 border border-rose-500/30 px-4 py-3 text-xs text-rose-300">
           {errorMsg}
         </div>
       )}
@@ -237,21 +238,23 @@ export function WalletView({
       {showAddCardForm && (
         <form
           onSubmit={handleCreateCard}
-          className="rounded-3xl bg-slate-900 border border-emerald-500/40 p-5 space-y-4 shadow-xl"
+          className="rounded-2xl bg-zinc-900 border border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] p-5 space-y-4"
         >
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-white">Нова картка з пулу України (21 банк)</h3>
+            <h3 className="text-base font-semibold text-zinc-50">
+              Нова картка з пулу України (21 банк)
+            </h3>
             <button
               type="button"
               onClick={() => setShowAddCardForm(false)}
-              className="text-slate-400 hover:text-white cursor-pointer"
+              className="text-zinc-400 hover:text-zinc-100 cursor-pointer"
             >
-              <X className="h-5 w-5" />
+              <X className="h-5 w-5" strokeWidth={1.75} />
             </button>
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-medium text-slate-300">Оберіть банк</label>
+            <label className="block text-xs font-medium text-zinc-300">Оберіть банк</label>
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-60 overflow-y-auto pr-1">
               {UA_BANKS.map((bank) => {
                 const selected = bank.id === selectedBankId;
@@ -260,14 +263,14 @@ export function WalletView({
                     key={bank.id}
                     type="button"
                     onClick={() => handleBankSelect(bank.id)}
-                    className={`min-h-[44px] rounded-xl px-3 py-2 text-left border flex items-center gap-2 transition cursor-pointer ${
+                    className={`min-h-[42px] rounded-xl px-3 py-2 text-left border flex items-center gap-2 transition-colors cursor-pointer ${
                       selected
-                        ? 'bg-emerald-500/15 border-emerald-500 text-white'
-                        : 'bg-slate-950 border-slate-800 text-slate-300 hover:border-slate-700'
+                        ? 'bg-emerald-500/15 border-emerald-500/60 text-zinc-50'
+                        : 'bg-zinc-950 border-zinc-800 text-zinc-300 hover:border-zinc-700'
                     }`}
                   >
                     <span
-                      className="h-3 w-3 rounded-full shrink-0"
+                      className="h-2.5 w-2.5 rounded-full shrink-0"
                       style={{ backgroundColor: bank.brandColor }}
                     />
                     <span className="text-xs font-medium truncate">{bank.nameUk}</span>
@@ -279,7 +282,7 @@ export function WalletView({
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2 space-y-1.5">
-              <label className="block text-xs font-medium text-slate-300" htmlFor="card-name-input">
+              <label className="block text-xs font-medium text-zinc-300" htmlFor="card-name-input">
                 Назва картки
               </label>
               <input
@@ -289,7 +292,7 @@ export function WalletView({
                 value={cardNameInput}
                 onChange={(e) => setCardNameInput(e.target.value)}
                 placeholder="Наприклад: Чорна картка"
-                className="w-full min-h-[44px] rounded-xl bg-slate-950 border border-slate-800 px-3.5 text-sm text-white focus:outline-none focus:border-emerald-500"
+                className="w-full min-h-[44px] rounded-xl bg-zinc-950 border border-zinc-800 px-3.5 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500"
               />
               {selectedBank.cardPresets.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 pt-1">
@@ -298,7 +301,7 @@ export function WalletView({
                       key={preset}
                       type="button"
                       onClick={() => setCardNameInput(preset)}
-                      className="text-[11px] px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 cursor-pointer"
+                      className="text-[11px] px-2.5 py-1 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 cursor-pointer"
                     >
                       {preset}
                     </button>
@@ -308,8 +311,8 @@ export function WalletView({
             </div>
 
             <div className="space-y-1.5">
-              <label className="block text-xs font-medium text-slate-300" htmlFor="card-tax-input">
-                Податок на кешбек (%)
+              <label className="block text-xs font-medium text-zinc-300" htmlFor="card-tax-input">
+                Податок (%)
               </label>
               <input
                 id="card-tax-input"
@@ -319,19 +322,19 @@ export function WalletView({
                 max="100"
                 value={taxPercentInput}
                 onChange={(e) => setTaxPercentInput(e.target.value)}
-                className="w-full min-h-[44px] rounded-xl bg-slate-950 border border-slate-800 px-3.5 text-sm text-white tabular-nums focus:outline-none focus:border-emerald-500"
+                className="w-full min-h-[44px] rounded-xl bg-zinc-950 border border-zinc-800 px-3.5 text-sm font-mono text-zinc-100 tabular-nums focus:outline-none focus:border-emerald-500"
               />
-              <p className="text-[11px] text-slate-500">Стандарт в Україні: 23% (18% ПДФО + 5% ВЗ)</p>
+              <p className="text-[11px] text-zinc-500">Стандарт: 23% (18% ПДФО + 5% ВЗ)</p>
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex justify-end pt-2">
             <button
               type="submit"
               disabled={addingCard}
-              className="min-h-[46px] px-5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold text-sm inline-flex items-center gap-2 transition cursor-pointer"
+              className="min-h-[44px] px-5 rounded-xl bg-zinc-100 hover:bg-white text-zinc-950 font-medium text-sm inline-flex items-center gap-2 transition-[background-color,transform] duration-150 active:scale-[0.98] cursor-pointer"
             >
-              <Check className="h-4 w-4" />
+              <Check className="h-4 w-4" strokeWidth={1.75} />
               {addingCard ? 'Збереження...' : 'Додати картку в гаманець'}
             </button>
           </div>
@@ -340,17 +343,16 @@ export function WalletView({
 
       {/* Порожній стан */}
       {cards.length === 0 ? (
-        <div className="rounded-3xl bg-slate-900/60 border border-dashed border-slate-800 p-8 text-center space-y-3">
-          <p className="text-sm text-slate-300">
-            Ваш гаманець порожній. Натисніть <b>«Додати картку»</b> вище або завантажте готовий
-            приклад.
+        <div className="rounded-2xl bg-zinc-900/50 border border-dashed border-zinc-800 p-8 text-center space-y-3">
+          <p className="text-sm text-zinc-300">
+            Ваш гаманець порожній. Натисніть «Додати картку» вище або завантажте готовий приклад.
           </p>
           <button
             type="button"
             onClick={onPopulateDemoWallet}
-            className="min-h-[44px] px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-amber-300 inline-flex items-center gap-2 border border-slate-700 cursor-pointer"
+            className="min-h-[42px] px-4 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-xs font-medium text-emerald-400 inline-flex items-center gap-2 border border-zinc-800 cursor-pointer"
           >
-            <Sparkles className="h-4 w-4" />
+            <Sparkles className="h-4 w-4" strokeWidth={1.75} />
             Заповнити прикладом 4 українських карток
           </button>
         </div>
@@ -366,307 +368,312 @@ export function WalletView({
             return (
               <article
                 key={card.id}
-                className={`rounded-3xl border p-4 sm:p-5 space-y-4 transition ${
+                className={`rounded-2xl border overflow-hidden transition-opacity ${
                   card.isActive
-                    ? 'bg-slate-900/90 border-slate-800'
-                    : 'bg-slate-900/40 border-slate-800/60 opacity-70'
+                    ? 'bg-zinc-900/80 border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]'
+                    : 'bg-zinc-900/35 border-zinc-800/60 opacity-65'
                 }`}
               >
-                {/* Шапка картки */}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="h-11 w-11 rounded-xl flex items-center justify-center text-white shrink-0"
-                      style={{ backgroundColor: bank?.brandColor ?? '#334155' }}
-                    >
-                      <CreditCard className="h-5 w-5" />
+                <div
+                  className="h-1 w-full"
+                  style={{ backgroundColor: bank?.brandColor ?? '#3f3f46' }}
+                />
+
+                <div className="p-4 sm:p-5 space-y-4">
+                  {/* Шапка картки */}
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center justify-center text-zinc-200 shrink-0">
+                        <CreditCard className="h-5 w-5" strokeWidth={1.75} />
+                      </div>
+                      <div>
+                        <div className="flex items-baseline gap-2">
+                          <h3 className="text-base font-semibold text-zinc-50">
+                            {bank?.nameUk ?? card.bankId}
+                          </h3>
+                          <span className="text-xs text-zinc-400">{card.cardName}</span>
+                        </div>
+                        <div className="text-xs font-mono text-zinc-500 mt-0.5">
+                          Податок {card.taxPercent}% · Правил: {cardRules.length}
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-white">
-                          {bank?.nameUk ?? card.bankId}
-                        </h3>
-                        <span className="text-xs text-slate-400">• {card.cardName}</span>
-                      </div>
-                      <div className="text-xs text-slate-500">
-                        Податок: {card.taxPercent}% • Правил на місяць: {cardRules.length}
-                      </div>
+
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => onToggleCardActive(card.id, !card.isActive)}
+                        className={`min-h-[36px] px-3 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                          card.isActive
+                            ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
+                            : 'bg-zinc-950 border-zinc-800 text-zinc-400'
+                        }`}
+                      >
+                        {card.isActive ? 'Активна' : 'Вимкнена'}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingCardId(isEditing ? null : card.id);
+                          setErrorMsg(null);
+                        }}
+                        className="min-h-[36px] px-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-100 text-xs font-medium inline-flex items-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <Plus className="h-3.5 w-3.5" strokeWidth={1.75} />
+                        Додати %
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onDeleteCard(card.id)}
+                        aria-label={`Видалити картку ${card.cardName}`}
+                        className="min-h-[36px] min-w-[36px] rounded-lg bg-zinc-950 hover:bg-rose-500/15 border border-zinc-800 text-zinc-500 hover:text-rose-300 flex items-center justify-center transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="h-4 w-4" strokeWidth={1.75} />
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => onToggleCardActive(card.id, !card.isActive)}
-                      className={`min-h-[38px] px-3 rounded-xl text-xs font-semibold border transition cursor-pointer ${
-                        card.isActive
-                          ? 'bg-emerald-500/15 border-emerald-500/30 text-emerald-300'
-                          : 'bg-slate-800 border-slate-700 text-slate-400'
-                      }`}
+                  {/* Форма додавання правила кешбеку */}
+                  {isEditing && (
+                    <form
+                      onSubmit={(e) => handleSaveRule(e, card.id)}
+                      className="rounded-xl bg-zinc-950 border border-zinc-800 p-4 space-y-3"
                     >
-                      {card.isActive ? 'Активна' : 'Вимкнена'}
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setEditingCardId(isEditing ? null : card.id);
-                        setErrorMsg(null);
-                      }}
-                      className="min-h-[38px] px-3 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 text-xs font-semibold inline-flex items-center gap-1 transition cursor-pointer"
-                    >
-                      <Plus className="h-3.5 w-3.5" />
-                      Додати категорію / %
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => onDeleteCard(card.id)}
-                      aria-label={`Видалити картку ${card.cardName}`}
-                      className="min-h-[38px] min-w-[38px] rounded-xl bg-slate-800 hover:bg-rose-500/20 text-slate-400 hover:text-rose-300 flex items-center justify-center transition cursor-pointer"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                </div>
-
-                {/* Форма додавання/оновлення правила кешбеку на місяць */}
-                {isEditing && (
-                  <form
-                    onSubmit={(e) => handleSaveRule(e, card.id)}
-                    className="rounded-2xl bg-slate-950 border border-slate-800 p-4 space-y-3"
-                  >
-                    <div className="grid grid-cols-2 gap-2 rounded-xl bg-slate-900 p-1 border border-slate-800">
-                      <button
-                        type="button"
-                        onClick={() => setRuleMode('CATEGORY')}
-                        className={`min-h-[38px] rounded-lg text-xs font-semibold transition cursor-pointer ${
-                          ruleMode === 'CATEGORY'
-                            ? 'bg-slate-800 text-white'
-                            : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                      >
-                        Категорія (з 25)
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setRuleMode('MERCHANT')}
-                        className={`min-h-[38px] rounded-lg text-xs font-semibold transition cursor-pointer ${
-                          ruleMode === 'MERCHANT'
-                            ? 'bg-slate-800 text-white'
-                            : 'text-slate-400 hover:text-slate-200'
-                        }`}
-                      >
-                        Партнерський магазин
-                      </button>
-                    </div>
-
-                    {ruleMode === 'CATEGORY' ? (
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-slate-300">
-                          Категорія кешбеку на {formatMonthLabel(monthYear)}
-                        </label>
-                        <select
-                          value={ruleCategoryId}
-                          onChange={(e) => setRuleCategoryId(e.target.value as CategoryId)}
-                          className="w-full min-h-[44px] rounded-xl bg-slate-900 border border-slate-700 px-3 text-sm text-white focus:outline-none focus:border-emerald-500"
+                      <div className="grid grid-cols-2 gap-1 rounded-lg bg-zinc-900 p-1 border border-zinc-800">
+                        <button
+                          type="button"
+                          onClick={() => setRuleMode('CATEGORY')}
+                          className={`min-h-[36px] rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                            ruleMode === 'CATEGORY'
+                              ? 'bg-zinc-800 text-zinc-50'
+                              : 'text-zinc-400 hover:text-zinc-200'
+                          }`}
                         >
-                          {UA_CATEGORIES.map((cat) => (
-                            <option key={cat.id} value={cat.id}>
-                              {cat.nameUk}
-                            </option>
-                          ))}
-                        </select>
+                          Категорія (з 25)
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setRuleMode('MERCHANT')}
+                          className={`min-h-[36px] rounded-md text-xs font-medium transition-colors cursor-pointer ${
+                            ruleMode === 'MERCHANT'
+                              ? 'bg-zinc-800 text-zinc-50'
+                              : 'text-zinc-400 hover:text-zinc-200'
+                          }`}
+                        >
+                          Партнерський магазин
+                        </button>
                       </div>
-                    ) : (
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+                      {ruleMode === 'CATEGORY' ? (
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-slate-300">
-                            Магазин зі списку України
+                          <label className="block text-xs font-medium text-zinc-300">
+                            Категорія кешбеку
                           </label>
                           <select
-                            value={ruleMerchantId}
-                            onChange={(e) => {
-                              setRuleMerchantId(e.target.value);
-                              setCustomPartnerInput('');
-                            }}
-                            className="w-full min-h-[44px] rounded-xl bg-slate-900 border border-slate-700 px-3 text-sm text-white focus:outline-none focus:border-emerald-500"
+                            value={ruleCategoryId}
+                            onChange={(e) => setRuleCategoryId(e.target.value as CategoryId)}
+                            className="w-full min-h-[42px] rounded-xl bg-zinc-900 border border-zinc-800 px-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500"
                           >
-                            {UA_MERCHANTS.map((m) => (
-                              <option key={m.id} value={m.id}>
-                                {m.nameUk}
+                            {UA_CATEGORIES.map((cat) => (
+                              <option key={cat.id} value={cat.id}>
+                                {cat.nameUk}
                               </option>
                             ))}
                           </select>
                         </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-medium text-zinc-300">
+                              Магазин України
+                            </label>
+                            <select
+                              value={ruleMerchantId}
+                              onChange={(e) => {
+                                setRuleMerchantId(e.target.value);
+                                setCustomPartnerInput('');
+                              }}
+                              className="w-full min-h-[42px] rounded-xl bg-zinc-900 border border-zinc-800 px-3 text-sm text-zinc-100 focus:outline-none focus:border-emerald-500"
+                            >
+                              {UA_MERCHANTS.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                  {m.nameUk}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="space-y-1.5">
+                            <label className="block text-xs font-medium text-zinc-300">
+                              Або впишіть назву партнера
+                            </label>
+                            <input
+                              type="text"
+                              value={customPartnerInput}
+                              onChange={(e) => setCustomPartnerInput(e.target.value)}
+                              placeholder="Напр. Сільпо або Аврора"
+                              className="w-full min-h-[42px] rounded-xl bg-zinc-900 border border-zinc-800 px-3 text-sm text-zinc-100 placeholder:text-zinc-600 focus:outline-none focus:border-emerald-500"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-2 gap-3">
                         <div className="space-y-1.5">
-                          <label className="block text-xs font-medium text-slate-300">
-                            Або впишіть назву партнера вручну
+                          <label className="block text-xs font-medium text-zinc-300">
+                            % за власні кошти
                           </label>
                           <input
-                            type="text"
-                            value={customPartnerInput}
-                            onChange={(e) => setCustomPartnerInput(e.target.value)}
-                            placeholder="Напр. Сільпо або Аврора"
-                            className="w-full min-h-[44px] rounded-xl bg-slate-900 border border-slate-700 px-3 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="100"
+                            value={ownRateInput}
+                            onChange={(e) => setOwnRateInput(e.target.value)}
+                            className="w-full min-h-[42px] rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 text-sm font-mono font-medium tabular-nums text-zinc-100 focus:outline-none focus:border-emerald-500"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <label className="block text-xs font-medium text-zinc-300">
+                            % за кредитні кошти
+                          </label>
+                          <input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            max="100"
+                            value={creditRateInput}
+                            onChange={(e) => setCreditRateInput(e.target.value)}
+                            className="w-full min-h-[42px] rounded-xl bg-zinc-900 border border-zinc-800 px-3.5 text-sm font-mono font-medium tabular-nums text-zinc-100 focus:outline-none focus:border-emerald-500"
                           />
                         </div>
                       </div>
-                    )}
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-emerald-400">
-                          % за ВЛАСНІ кошти
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={ownRateInput}
-                          onChange={(e) => setOwnRateInput(e.target.value)}
-                          className="w-full min-h-[44px] rounded-xl bg-slate-900 border border-emerald-500/40 px-3.5 text-sm font-bold tabular-nums text-white focus:outline-none focus:border-emerald-400"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="block text-xs font-medium text-sky-400">
-                          % за КРЕДИТНІ кошти
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          max="100"
-                          value={creditRateInput}
-                          onChange={(e) => setCreditRateInput(e.target.value)}
-                          className="w-full min-h-[44px] rounded-xl bg-slate-900 border border-sky-500/40 px-3.5 text-sm font-bold tabular-nums text-white focus:outline-none focus:border-sky-400"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setEditingCardId(null)}
-                        className="min-h-[40px] px-4 rounded-xl text-xs font-medium text-slate-400 hover:text-white cursor-pointer"
-                      >
-                        Скасувати
-                      </button>
-                      <button
-                        type="submit"
-                        disabled={savingRule}
-                        className="min-h-[40px] px-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-bold cursor-pointer"
-                      >
-                        {savingRule ? 'Збереження...' : 'Зберегти відсотки'}
-                      </button>
-                    </div>
-                  </form>
-                )}
-
-                {/* Активні правила картки на поточний місяць */}
-                {cardRules.length === 0 ? (
-                  <div className="rounded-2xl bg-slate-950/60 border border-slate-800/70 px-4 py-3 text-xs text-slate-500">
-                    Для цієї картки ще не обрано категорій кешбеку на поточний місяць.
-                  </div>
-                ) : (
-                  <div className="divide-y divide-slate-800/70 rounded-2xl bg-slate-950/70 border border-slate-800/80 overflow-hidden">
-                    {cardRules.map((rule) => {
-                      const cat = rule.categoryId ? CATEGORY_BY_ID.get(rule.categoryId) : undefined;
-                      const merchant = rule.merchantId
-                        ? MERCHANT_BY_ID.get(rule.merchantId)
-                        : undefined;
-                      const label =
-                        rule.ruleType === 'MERCHANT'
-                          ? `Партнер: ${rule.customPartnerName ?? merchant?.nameUk ?? 'Магазин'}`
-                          : cat?.nameUk ?? 'Кешбек на усі покупки';
-
-                      return (
-                        <div
-                          key={rule.id}
-                          className="px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+                      <div className="flex justify-end gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setEditingCardId(null)}
+                          className="min-h-[38px] px-3.5 rounded-lg text-xs font-medium text-zinc-400 hover:text-zinc-100 cursor-pointer"
                         >
-                          <div className="flex items-center gap-2.5 min-w-0">
-                            {cat ? (
-                              <CategoryIcon
-                                iconName={cat.iconName}
-                                className="h-4 w-4 text-emerald-400 shrink-0"
-                              />
-                            ) : (
-                              <Store className="h-4 w-4 text-amber-400 shrink-0" />
-                            )}
-                            <span className="text-xs font-semibold text-slate-200 truncate">
-                              {label}
-                            </span>
+                          Скасувати
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={savingRule}
+                          className="min-h-[38px] px-4 rounded-lg bg-zinc-100 hover:bg-white text-zinc-950 text-xs font-medium cursor-pointer"
+                        >
+                          {savingRule ? 'Збереження...' : 'Зберегти відсотки'}
+                        </button>
+                      </div>
+                    </form>
+                  )}
+
+                  {/* Активні правила картки */}
+                  {cardRules.length === 0 ? (
+                    <div className="rounded-xl bg-zinc-950/60 border border-zinc-800/70 px-3.5 py-2.5 text-xs text-zinc-500">
+                      Категорії кешбеку на поточний місяць ще не задано
+                    </div>
+                  ) : (
+                    <div className="divide-y divide-zinc-800/80 rounded-xl bg-zinc-950/70 border border-zinc-800/80 overflow-hidden">
+                      {cardRules.map((rule) => {
+                        const cat = rule.categoryId ? CATEGORY_BY_ID.get(rule.categoryId) : undefined;
+                        const merchant = rule.merchantId
+                          ? MERCHANT_BY_ID.get(rule.merchantId)
+                          : undefined;
+                        const label =
+                          rule.ruleType === 'MERCHANT'
+                            ? `Партнер: ${rule.customPartnerName ?? merchant?.nameUk ?? 'Магазин'}`
+                            : cat?.nameUk ?? 'Кешбек на усі покупки';
+
+                        return (
+                          <div
+                            key={rule.id}
+                            className="px-3.5 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              {cat ? (
+                                <CategoryIcon
+                                  iconName={cat.iconName}
+                                  className="h-4 w-4 text-zinc-400 shrink-0"
+                                  strokeWidth={1.75}
+                                />
+                              ) : (
+                                <Store className="h-4 w-4 text-emerald-400 shrink-0" strokeWidth={1.75} />
+                              )}
+                              <span className="text-xs font-medium text-zinc-200 truncate">
+                                {label}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-2 self-end sm:self-center">
+                              <label className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1 text-[11px] text-zinc-400">
+                                <span>Власні</span>
+                                <input
+                                  type="number"
+                                  step="0.25"
+                                  min="0"
+                                  max="100"
+                                  value={rule.rateOwnFunds}
+                                  onChange={(e) =>
+                                    onUpsertRule({
+                                      id: rule.id,
+                                      cardId: rule.cardId,
+                                      monthYear: rule.monthYear,
+                                      ruleType: rule.ruleType,
+                                      categoryId: rule.categoryId,
+                                      merchantId: rule.merchantId,
+                                      customPartnerName: rule.customPartnerName,
+                                      rateOwnFunds: Number(e.target.value) || 0,
+                                      rateCreditFunds: rule.rateCreditFunds,
+                                    })
+                                  }
+                                  className="w-12 bg-transparent font-mono font-medium tabular-nums text-zinc-100 text-right focus:outline-none"
+                                />
+                                <span className="font-mono">%</span>
+                              </label>
+
+                              <label className="inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 border border-zinc-800 px-2.5 py-1 text-[11px] text-zinc-400">
+                                <span>Кред.</span>
+                                <input
+                                  type="number"
+                                  step="0.25"
+                                  min="0"
+                                  max="100"
+                                  value={rule.rateCreditFunds}
+                                  onChange={(e) =>
+                                    onUpsertRule({
+                                      id: rule.id,
+                                      cardId: rule.cardId,
+                                      monthYear: rule.monthYear,
+                                      ruleType: rule.ruleType,
+                                      categoryId: rule.categoryId,
+                                      merchantId: rule.merchantId,
+                                      customPartnerName: rule.customPartnerName,
+                                      rateOwnFunds: rule.rateOwnFunds,
+                                      rateCreditFunds: Number(e.target.value) || 0,
+                                    })
+                                  }
+                                  className="w-12 bg-transparent font-mono font-medium tabular-nums text-zinc-100 text-right focus:outline-none"
+                                />
+                                <span className="font-mono">%</span>
+                              </label>
+
+                              <button
+                                type="button"
+                                onClick={() => onDeleteRule(rule.id)}
+                                aria-label={`Видалити правило ${label}`}
+                                className="h-7 w-7 rounded-lg flex items-center justify-center text-zinc-500 hover:text-rose-400 hover:bg-zinc-800 transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" strokeWidth={1.75} />
+                              </button>
+                            </div>
                           </div>
-
-                          <div className="flex items-center gap-2 self-end sm:self-center">
-                            <label className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 px-2 py-1 text-[11px] text-emerald-300">
-                              <span>Власні:</span>
-                              <input
-                                type="number"
-                                step="0.25"
-                                min="0"
-                                max="100"
-                                value={rule.rateOwnFunds}
-                                onChange={(e) =>
-                                  onUpsertRule({
-                                    id: rule.id,
-                                    cardId: rule.cardId,
-                                    monthYear: rule.monthYear,
-                                    ruleType: rule.ruleType,
-                                    categoryId: rule.categoryId,
-                                    merchantId: rule.merchantId,
-                                    customPartnerName: rule.customPartnerName,
-                                    rateOwnFunds: Number(e.target.value) || 0,
-                                    rateCreditFunds: rule.rateCreditFunds,
-                                  })
-                                }
-                                className="w-14 bg-transparent font-bold tabular-nums text-white text-right focus:outline-none"
-                              />
-                              <span>%</span>
-                            </label>
-
-                            <label className="inline-flex items-center gap-1 rounded-lg bg-sky-500/10 border border-sky-500/30 px-2 py-1 text-[11px] text-sky-300">
-                              <span>Кред.:</span>
-                              <input
-                                type="number"
-                                step="0.25"
-                                min="0"
-                                max="100"
-                                value={rule.rateCreditFunds}
-                                onChange={(e) =>
-                                  onUpsertRule({
-                                    id: rule.id,
-                                    cardId: rule.cardId,
-                                    monthYear: rule.monthYear,
-                                    ruleType: rule.ruleType,
-                                    categoryId: rule.categoryId,
-                                    merchantId: rule.merchantId,
-                                    customPartnerName: rule.customPartnerName,
-                                    rateOwnFunds: rule.rateOwnFunds,
-                                    rateCreditFunds: Number(e.target.value) || 0,
-                                  })
-                                }
-                                className="w-14 bg-transparent font-bold tabular-nums text-white text-right focus:outline-none"
-                              />
-                              <span>%</span>
-                            </label>
-
-                            <button
-                              type="button"
-                              onClick={() => onDeleteRule(rule.id)}
-                              aria-label={`Видалити правило ${label}`}
-                              className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-500 hover:text-rose-400 hover:bg-slate-800 transition cursor-pointer"
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </article>
             );
           })}
